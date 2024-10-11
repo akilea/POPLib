@@ -1,28 +1,15 @@
-import pytest
 from ursina import *
-from .util import run_generic_test_scene
+from unit_test.manual_app_runner import run_ursina_for, assert_true, assert_false
 
-AVG_FPS = 60
-def to_frames(seconds):
-    return seconds * AVG_FPS
+#Toutes les méthodes de test doivent avoir le préfixe test_ dans un fichier  avec le préfixe test_.
+def test_basique_succes():
+    assert 1 == 1
 
-def run_ursina_for(app,seconds):
-    for i in range(0,to_frames(seconds)):
-        app.step()
+def test_basique_echec():
+    assert 1 == 2
 
-@pytest.fixture
-def start_ursina(): 
-    app = Ursina()
-    yield app
-    app.shutdown()
-
-@pytest.fixture
-def run_test_scene():
-    app = run_generic_test_scene()
-    yield app
-    app.shutdown()
-
-def test_exemple_sequence(run_test_scene):
+#Les fixtures sont contenus dans conftest.py. PyTest les détecte automatiquement dans ce fichier.
+def test_sequence(run_test_scene):
     e = Entity(model='cube', collider='box', texture='shore', texture_scale=Vec2(2), color=hsv(.3,1,.5))
     s = Sequence(
     Wait(2),
@@ -33,15 +20,22 @@ def test_exemple_sequence(run_test_scene):
     Func(print, 'Done!'),
     loop=False,
     )
-    s.append(Func(assert_true))
     s.start()
+
     #Ligne qui démarre Ursina 8 secondes
     run_ursina_for(run_test_scene,8)
+    #Succès par défaut
 
+def test_position(run_test_scene):
+    e = Entity(model='cube', collider='box', texture='shore', texture_scale=Vec2(2), color=hsv(.3,1,.5))
+    s = Sequence(
+    Wait(2),
+    Func(e.animate_x,value=10, duration=1),  
+    Func(print, 'Done!'),
+    loop=False,
+    )
+    s.start()
 
-#Callback utilitaire
-def assert_true():
-    assert True
-
-def assert_false():
-    assert False
+    run_ursina_for(run_test_scene,6)
+    #On peut tester après que Ursina ait roulé
+    assert(e.position.x > 9.0)

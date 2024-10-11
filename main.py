@@ -1,4 +1,4 @@
-from unit_test.util import run_generic_scene
+from unit_test.scene_creation import run_generic_scene
 from ursina import *
 from ursina.shaders import lit_with_shadows_shader
 

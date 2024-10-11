@@ -12,7 +12,7 @@ def run_generic_scene():
     cam = EditorCamera(position=Vec3(0,50,-100),rotation=(27,0,0))
     return app
 
-class InputEntity(Entity):
+class TriggerTestFailureEntity(Entity):
     def input(self,key):
         if key == "f":
             assert(False)
@@ -20,6 +20,6 @@ class InputEntity(Entity):
 def run_generic_test_scene():
     app = run_generic_scene()
     f = Text(text='Appuyer sur F pour échouer le test!')
-    e = InputEntity()
+    e = TriggerTestFailureEntity()
     return app
 
