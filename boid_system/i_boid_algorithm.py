@@ -1,8 +1,7 @@
-import abc
+from abc import ABC
 from ursina import *
 
-@abs
-class IBoidAlgorithm:
+class IBoidAlgorithm(ABC):
     def __init__(self, root: Entity=None, debug_color:bool=None,weight:float=1.0):
         pass
 
