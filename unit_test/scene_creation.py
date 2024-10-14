@@ -20,6 +20,13 @@ class TriggerTestFailureEntity(Entity):
 def run_generic_test_scene():
     app = run_generic_scene()
     f = Text(text='Appuyer sur F pour échouer le test!')
+    f.position = Vec3(-1,0.15,0)
+    f.origin = Vec2.zero
+    f.color = color.red
     e = TriggerTestFailureEntity()
     return app
 
+def create_expected_result_text(expect_result : str)->None:
+    f = Text(text=expect_result)
+    f.color = color.green
+    f.position = Vec3(-0.7,0.15,0)
