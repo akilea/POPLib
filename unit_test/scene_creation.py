@@ -21,7 +21,7 @@ def run_generic_test_scene():
     app = run_generic_scene()
     f = Text(text='Appuyer sur F pour échouer le test!')
     f.position = Vec3(-1,0.15,0)
-    f.origin = Vec2.zero
+    f.origin = Vec2(0,0)
     f.color = color.red
     e = TriggerTestFailureEntity()
     return app
