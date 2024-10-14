@@ -1,21 +1,29 @@
 #Description
 POPlib est la librairie qui va supporter le développement de POP (Peck Order Pandemonium).
-
-#Dépendances externes
-cd poplib
-pip install -r requirements.txt
-
-#Architecture
-Voir les images dans le dossier _ressources
-
-#Concept
 Les étudiants doivent implémenter des boids ainsi que l'interface d'unité de combat du jeu.
 Ultimement, on aura un simulateur de combat de boid.
 
-#Utilisation de base
-Répliquer le code du main.py dans votre projet.
+#Démarrage
+cd poplib
+pip install -r requirements.txt
 
-#Tests unitaires
-Configurez PyTest, puis
-from poplib.unit_test.manual_app_runner import run_ursina_for, assert_true, assert_false
-Vous devriez pouvoir faire comme dans test_exemple.py
+Les fichiers dans la dossier _project_start_files devrait être copiés à la racine de votre projet et adaptés.
+
+#Mise en place des tests unitaires
+Configurez PyTest, puis inspirez-vous de .\_project_start_files\test_generic.py pour faire vos propres tests.
+
+# Structure des dossiers
+## _project_start_files
+Contient les fichiers que vou devriez copier-coller dans votre projet pour démarrer
+
+## _resssources
+Contient des images/aides visuels.
+
+## boid_system
+Module contenant les interfaces/classes strictement liées aux boids
+
+## game-engine
+Contient les interfaces/classes strictement liées au simualteur de combat
+
+## unit_test
+Contient les interface/classe strictement liées au tests unitaire
