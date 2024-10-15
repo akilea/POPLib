@@ -1,24 +1,40 @@
 from ursina import *
+from typing import Callable
 
 class InputMessager(Entity):
     def __init__(self):
         super().__init__()
-        self._subscribers = []
+        self._subscribers = set()
+        self._input_help = set()
 
-    def add_subscriber(self,obj):
-        if hasattr(obj,"input") or hasattr(obj,"input_hold"):
-            self._subscribers.append(obj)
-        else:
-            raise Exception("Object without input or input_hold method! Add the input or input_hold method to fix this.")
+    def add_subscriber(self,callable):
+        self._subscribers.add(callable)
 
-    def remove_subscriber(self,obj):
-        if obj in self._subscribers:
-            self._subscribers.remove(obj)
+    def remove_subscriber(self,callable):
+        if callable in self._subscribers:
+            self._subscribers.remove(callable)
         else:
-            raise Exception("This object is not subscribed!")
+            raise Exception("This callable is not subscribed!")
 
     def input(self,key):
-        # print(key)
-        for x in self._subscribers:
-            if hasattr(x,"input"):
-                x.input(key)
+        print(key)
+        if InputMessager._is_up_event(key):
+            pk = InputMessager._purify_event(key)
+            if pk in self._input_help:
+                self._input_help.remove(pk)
+        else:
+            if key not in self._input_help:
+                self._input_help.add(key)
+    
+    @staticmethod
+    def _is_up_event(key):
+        return key.endswith(" up")
+    
+    @staticmethod
+    def _purify_event(key):
+        return key.split(" up", 1)[0]
+
+    def update(self):
+        for s in self._subscribers:
+            for k in self._input_help:
+                s(k)
