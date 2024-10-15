@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
-from i_restricted_boid import IRestrictedBoid
+from popgame.boid_system.i_restricted_boid import IRestrictedBoid
 from ursina import *
 
 class IBoidAlgorithm(ABC):
-    def __init__(self,boid_owner:IRestrictedBoid,weight:float=1.0):
+    def __init__(self,weight:float=1.0):
+        pass
+
+    @abstractmethod
+    def set_owner(self,owner_boid:IRestrictedBoid)-> None:
         pass
 
     @abstractmethod

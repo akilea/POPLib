@@ -7,13 +7,13 @@ class IRestrictedBoid(ABC):
         pass
 
     @abstractmethod
-    def get_distance_from(self,position:Vec2)->float:
+    def get_distance_from(self,boid_position:Vec2)->float:
         pass
 
     @abstractmethod
-    def get_unit_direction_to(self,position:Vec2)->Vec2:
+    def get_unit_direction_to(self,boid_position:Vec2)->Vec2:
         pass
 
     @abstractmethod
-    def get_unit_direction_and_distance_to(self,position:Vec2)-> tuple[Vec2,float]:
+    def get_unit_direction_and_distance_to(self,boid_position:Vec2)-> tuple[Vec2,float]:
         pass
