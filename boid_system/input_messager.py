@@ -17,7 +17,6 @@ class InputMessager(Entity):
             raise Exception("This callable is not subscribed!")
 
     def input(self,key):
-        print(key)
         if InputMessager._is_up_event(key):
             pk = InputMessager._purify_event(key)
             if pk in self._input_help:

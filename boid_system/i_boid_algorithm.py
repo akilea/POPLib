@@ -19,5 +19,5 @@ class IBoidAlgorithm(ABC):
         pass
 
     @abstractmethod
-    def get_weight(self,weight)->float:
+    def get_weight(self)->float:
         pass

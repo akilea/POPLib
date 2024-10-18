@@ -7,6 +7,14 @@ class IRestrictedBoid(ABC):
         pass
 
     @abstractmethod
+    def get_velocity(self)->Vec2:
+        pass
+
+    @abstractmethod
+    def get_max_velocity(self)->float:
+        pass
+
+    @abstractmethod
     def get_distance_from(self,boid_position:Vec2)->float:
         pass
 
