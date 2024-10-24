@@ -1,8 +1,8 @@
-from unit_test.scene_creation import run_generic_scene
+from unit_test.scene_creation import run_basic_scene
 from ursina import *
 from ursina.shaders import lit_with_shadows_shader
 
-app = run_generic_scene() 
+app = run_basic_scene() 
 application.hot_reloader.hotreload = True
 #Votre code
 

@@ -1,10 +1,13 @@
-from ursina import Vec2,rotate_around_point_2d,random
+from ursina import Vec2,Vec3,rotate_around_point_2d,random
 from popgame.boid_system import *
 import math
 
 #Unsafe (types)
 def length_2D(v:Vec2)->float:
     return math.sqrt(v.x*v.x+v.y*v.y)
+
+def length_3D(v:Vec3)->float:
+    return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z)
 
 def change_length_2D(v:Vec2,length:float)->Vec2:
     ret = Vec2(0.0,0.0)
