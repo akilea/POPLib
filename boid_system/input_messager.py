@@ -17,6 +17,12 @@ class InputMessager(Entity):
             raise Exception("This callable is not subscribed!")
 
     def input(self,key):
+        if InputMessager._is_mouse_event(key):
+            return
+        
+        if InputMessager._is_hold_event(key):
+            return
+        
         if InputMessager._is_up_event(key):
             pk = InputMessager._purify_event(key)
             if pk in self._input_help:
@@ -28,6 +34,18 @@ class InputMessager(Entity):
     @staticmethod
     def _is_up_event(key):
         return key.endswith(" up")
+    
+    @staticmethod
+    def _is_hold_event(key):
+        return key.endswith(" hold")
+    
+    @staticmethod
+    def _is_mouse_event(key):
+        return "mouse" in key
+    
+    @staticmethod
+    def _purify_event(key):
+        return key.split(" up", 1)[0]
     
     @staticmethod
     def _purify_event(key):
