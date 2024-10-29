@@ -3,6 +3,12 @@ from popgame.boid_system import *
 import math
 
 #Unsafe (types)
+def dot_2D(v1:Vec2,v2:Vec2)->float:
+    return v1.x*v2.x+v1.y*v2.y
+
+def dot_3D(v1:Vec2,v2:Vec2)->float:
+    return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+
 def length_2D(v:Vec2)->float:
     return math.sqrt(v.x*v.x+v.y*v.y)
 
@@ -35,4 +41,4 @@ def randomize_boid(boid,box_min:Vec2=Vec2(-25.0,-25.0),box_max:Vec2=Vec2(25.0,25
     randomize_boid_position(boid,box_min,box_max)
     randomize_boid_max_velocity(boid,vel_min,vel_max)
     v = Vec2(boid._max_velocity,boid._max_velocity)
-    randomize_boid_max_velocity(boid,-v,v)
+    randomize_boid_velocity(boid,-v,v)
