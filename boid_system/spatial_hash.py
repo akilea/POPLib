@@ -39,6 +39,8 @@ class SpatialHash(Entity):
 
     def update_boid_cell(self,restricted_boid):
         """Move a boid from one cell to another if its position changed."""
+        if restricted_boid not in self._registered_boid_set:
+            raise Exception("")
         old_cell = self._hash(restricted_boid.get_old_position())
         new_cell = self._hash(restricted_boid.get_position())
         # print(f"restricted_boid.get_old_position():{restricted_boid.get_old_position()}, restricted_boid.get_position():{restricted_boid.get_position()}")
