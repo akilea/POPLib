@@ -1,29 +1,9 @@
 from ursina import *
 from ursina.shaders import lit_with_shadows_shader
-from .. import math
+from ..math import length_3D
 from .sample_texture import *
-
-WORLD_SIZE = 75.0
-WORLD_HEIGHT = 3.0
-WORLD_HALF_HEIGHT = WORLD_HEIGHT*0.5
-WORLD_HALF_SIZE = WORLD_SIZE*0.5
-WORLD_SIZE_BOUNDARY_MAX = Vec2(WORLD_HALF_SIZE,WORLD_HALF_SIZE)
-WORLD_SIZE_BOUNDARY_MIN = -WORLD_SIZE_BOUNDARY_MAX
-
-SOFT_BORDER_SIZE = WORLD_SIZE * 0.8
-SOFT_BORDER_HALF_SIZE = SOFT_BORDER_SIZE*0.5
-SOFT_BORDER_BOUNDARY_MAX = Vec2(SOFT_BORDER_HALF_SIZE,SOFT_BORDER_HALF_SIZE)
-SOFT_BORDER_BOUNDARY_MIN = -SOFT_BORDER_BOUNDARY_MAX
-
-HARD_BORDER_SIZE = WORLD_SIZE
-HARD_BORDER_HALF_SIZE = HARD_BORDER_SIZE*0.5
-HARD_BORDER_BOUNDARY_MAX = Vec2(HARD_BORDER_HALF_SIZE,HARD_BORDER_HALF_SIZE)
-HARD_BORDER_BOUNDARY_MIN = -HARD_BORDER_BOUNDARY_MAX
-
-VELOCITY_MIN = 0.0
-VELOCITY_MAX = 20.0
-
-LOWER_GROUND_SIZE = WORLD_SIZE*2.0
+from ..boid_system.spatial_hash import *
+from ..constant import *
 
 def run_basic_scene():
     app = Ursina()
@@ -137,7 +117,7 @@ def create_cloudy_castle():
 #########################
 def create_line(start,finish,color,width=0.1):
     delta = finish-start
-    length = math.length_3D(delta)
+    length = length_3D(delta)
     center = (finish+start)*0.5
     l = Entity(model='plane', scale=Vec3(width,width,length),shader=lit_with_shadows_shader,color=color)
     l.set_position(center)
@@ -186,3 +166,77 @@ def create_corners(min,max,heigth=0.0):
     c = Vec3(max.x,heigth,max.y)
     d = Vec3(max.x,heigth,min.y)
     return (a,b,c,d)
+
+def create_spatial_hash_debug(debug_grid=True,debug_count=True):
+    spatial_hash_entity = create_spatial_hash_grid_model(SPATIAL_HASH_GRID_SIZE,WORLD_SIZE_INT,WORLD_SIZE_INT) if debug_grid else None
+    g_count = SpatialHashGridCounter() if debug_count else None
+    return (spatial_hash_entity,g_count)
+
+def create_spatial_hash_grid_model(grid_size, width, height):
+    """Draw grid lines for each cell in the grid."""
+    parent = Entity()
+    # Vertical lines
+    for x in range(0, width + grid_size, grid_size):
+        e = Entity(model=Mesh(vertices=[Vec3(x, 0, 0), Vec3(x, 0, height)], mode='line'), color=color.gray)
+        e.parent = parent
+
+    # Horizontal lines
+    for y in range(0, height + grid_size, grid_size):
+        e = Entity(model=Mesh(vertices=[Vec3(0, 0, y), Vec3(width, 0, y)], mode='line'), color=color.gray)
+        e.parent = parent
+    parent.set_position(SPATIAL_HASH_VEC_OFFSET)
+    return parent
+
+
+
+class SpatialHashGridCounter(Entity):
+    def __init__(self, **kwargs):
+        super().__init__(True, True, **kwargs)
+        self._text_entity_dict = self.create_spatial_hash_count_model_dict(SPATIAL_HASH_GRID_SIZE,WORLD_SIZE_INT,WORLD_SIZE_INT)
+        self._start_index = 0
+
+    def create_spatial_hash_count_model_dict(self,grid_size, width, height):
+        """Initialize a dictionary with Text entities for each cell."""
+        text_entities = {}
+        
+        for x in range(int(SPATIAL_HASH_VEC_OFFSET_2D.x), int(SPATIAL_HASH_VEC_OFFSET_2D.x + width), grid_size):
+            for y in range(int(SPATIAL_HASH_VEC_OFFSET_2D.y), int(SPATIAL_HASH_VEC_OFFSET_2D.y + height), grid_size):
+                cell = SpatialHash.instance()._hash(Vec2(x,y))
+                center_x = x + grid_size / 2
+                center_y = y + grid_size / 2
+                parent_entity = Entity(position=Vec3(center_x, SPATIAL_HASH_TEXT_HEIGHT,center_y))
+                text_entity = Text(text="0",parent=parent_entity,color=color.black, scale=SPATIAL_HASH_TEXT_SCALE)
+                text_entities[cell] = text_entity
+        return text_entities
+
+    def update(self):
+        self.update_boid_count_texts_deferred(self._text_entity_dict)
+
+    def update_boid_count_texts_deferred(self, text_entities, batch_size=20):
+        """Deferred update of boid counts in text entities, batch by batch."""
+        cells = list(text_entities.keys())
+        total_cells = len(cells)
+        
+        start_index = self._start_index
+        end_index = min(start_index + batch_size, total_cells)
+        
+        for i in range(start_index, end_index):
+            cell = cells[i]
+            boid_count = SpatialHash.instance().get_boid_count_in_cell(cell)
+            text_entities[cell].text = str(boid_count)
+
+        # Update the start index for the next frame
+        self._start_index = end_index if end_index < total_cells else 0
+
+class SpatialHashUnitCounter(Entity):
+    def __init__(self, entity_to_attach_to,restricted_boid, **kwargs):
+        super().__init__(True, True, **kwargs)
+        self._text_entity = Text(text="0",parent=self,color=color.black, scale=SPATIAL_HASH_TEXT_BOID_SCALE,position=Vec3(0,4,0),billboard=True)
+        self._target_mask = 0xFFFFFFFF
+        self._distance = 1
+        self._restricted_boid = restricted_boid
+        self.parent = entity_to_attach_to
+
+    def update(self):
+        nearby_boids = SpatialHash.instance().get_nearby_boids_by_bitmask(self._restricted_boid, self._target_mask,self._distance)
+        self._text_entity.text = str(len(nearby_boids))
