@@ -55,7 +55,7 @@ class SpatialHash(Entity):
         cell = self._hash(boid._position)
         self._cells[cell].remove(boid)
 
-    def get_nearby_boids_by_bitmask(self, boid, target_mask,distance=1):
+    def get_nearby_boids_by_bitmask(self, boid, target_mask=0xFFFFFFF,distance=1,include_caller_boid = False):
         """Get boids from specific groups (using bitmask) in the neighboring cells."""
         if distance > SPATIAL_HASH_MAX_DISTANCE_REQUEST:
             raise ValueError("Request distance too high.")
@@ -70,6 +70,11 @@ class SpatialHash(Entity):
                         [other_boid for other_boid in self._cells[cell] 
                          if other_boid._group_mask & target_mask]
                     )
+        if not include_caller_boid:
+            try:
+                neighbors.remove(boid)
+            except ValueError:
+                pass
         return neighbors
     
     def get_boid_count_in_cell(self, cell):
