@@ -201,7 +201,7 @@ class SpatialHashGridCounter(Entity):
         
         for x in range(int(SPATIAL_HASH_VEC_OFFSET_2D.x), int(SPATIAL_HASH_VEC_OFFSET_2D.x + width), grid_size):
             for y in range(int(SPATIAL_HASH_VEC_OFFSET_2D.y), int(SPATIAL_HASH_VEC_OFFSET_2D.y + height), grid_size):
-                cell = SpatialHash.instance()._hash(Vec2(x,y))
+                cell = SpatialHash.instance().hash(Vec2(x,y))
                 center_x = x + grid_size / 2
                 center_y = y + grid_size / 2
                 parent_entity = Entity(position=Vec3(center_x, SPATIAL_HASH_TEXT_HEIGHT,center_y))

@@ -16,11 +16,14 @@ class SpatialHash(Entity):
         self._cells = defaultdict(list)
         self._registered_boid_set = set()
 
-    def _hash(self, vec):
+    def hash(self, vec):
         """Generate a hash for a position based on grid size."""
         h = (int(vec.x // self.grid_size), int(vec.y // self.grid_size))
         #print(vec,h)
         return h
+    
+    def hash1D(self,x:float):
+        return x // self.grid_size
 
     def register_boid(self, restricted_boid):
         """Add a boid to the grid based on its position."""
@@ -30,7 +33,7 @@ class SpatialHash(Entity):
         if(restricted_boid is None):
             raise Exception("Boid added is None")
             return
-        cell = self._hash(restricted_boid._position)
+        cell = self.hash(restricted_boid._position)
         self._cells[cell].append(restricted_boid)
         self._registered_boid_set.add(restricted_boid)
 
@@ -41,8 +44,8 @@ class SpatialHash(Entity):
         """Move a boid from one cell to another if its position changed."""
         if restricted_boid not in self._registered_boid_set:
             raise Exception("")
-        old_cell = self._hash(restricted_boid.get_old_position())
-        new_cell = self._hash(restricted_boid.get_position())
+        old_cell = self.hash(restricted_boid.get_old_position())
+        new_cell = self.hash(restricted_boid.get_position())
         # print(f"restricted_boid.get_old_position():{restricted_boid.get_old_position()}, restricted_boid.get_position():{restricted_boid.get_position()}")
         # print(f"old_cell:{old_cell}, new_cell:{new_cell}")
         if old_cell[0] != new_cell[0] or old_cell[1] != new_cell[1]:
@@ -52,14 +55,14 @@ class SpatialHash(Entity):
 
     def remove_boid(self, boid):
         """Remove a boid from its cell when deleted or moved."""
-        cell = self._hash(boid._position)
+        cell = self.hash(boid._position)
         self._cells[cell].remove(boid)
 
     def get_nearby_boids_by_bitmask(self, boid, target_mask=0xFFFFFFF,distance=1,include_caller_boid = False):
         """Get boids from specific groups (using bitmask) in the neighboring cells."""
         if distance > SPATIAL_HASH_MAX_DISTANCE_REQUEST:
             raise ValueError("Request distance too high.")
-        cell_x, cell_y = self._hash(boid._position)
+        cell_x, cell_y = self.hash(boid._position)
         neighbors = []
         for dx in [-distance, 0, distance]:
             for dy in [-distance, 0, distance]:
