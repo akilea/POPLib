@@ -30,6 +30,25 @@ def rotate_2D(v:Vec2,angle_degree:float)->Vec2:
     t = rotate_around_point_2d(v,Vec2(0,0),angle_degree)
     return Vec2(t[0],t[1])
 
+def parameter_inverse(scale, offset):
+    def inverse(distance):
+        return scale/(distance + offset)
+    return inverse
+
+def parameter_squared_inverse(scale, offset):
+    def squared_inverse(distance):
+        return scale/( distance*distance + offset)
+    return squared_inverse
+    
+def parameter_distance(scale):
+    def distance(distance):
+        return scale*distance
+    return distance
+
+cohesion_func = parameter_inverse(-30.0,0.1)
+separation_func = parameter_squared_inverse(180.0,0.1)
+separation_funky_func = parameter_squared_inverse(190.0,10.0)
+
 def randomize_boid_position(boid,box_min:Vec2=Vec2(-25.0,-25.0),box_max:Vec2=Vec2(25.0,25.0))->None:
     boid._position.x = random.uniform(box_min.x,box_max.x)
     boid._position.y = random.uniform(box_min.y,box_max.y)
