@@ -19,6 +19,10 @@ class IRestrictedBoid(ABC):
         pass
 
     @abstractmethod
+    def get_squared_distance_from(self,boid_position:Vec2)->float:
+        pass
+
+    @abstractmethod
     def get_unit_direction_to(self,boid_position:Vec2)->Vec2:
         pass
 

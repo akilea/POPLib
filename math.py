@@ -13,6 +13,9 @@ def dot_3D(v1:Vec2,v2:Vec2)->float:
 def length_2D(v:Vec2)->float:
     return math.sqrt(v.x*v.x+v.y*v.y)
 
+def length_squared_2D(v:Vec2)->float:
+    return v.x*v.x+v.y*v.y
+
 def length_3D(v:Vec3)->float:
     return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z)
 

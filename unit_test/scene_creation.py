@@ -229,7 +229,7 @@ class SpatialHashGridCounter(Entity):
         self._start_index = end_index if end_index < total_cells else 0
 
 class SpatialHashUnitCounter(Entity):
-    def __init__(self, entity_to_attach_to,restricted_boid, **kwargs):
+    def __init__(self, entity_to_attach_to,restricted_boid, distance=1,target_mask = 0xFFFFFFF,**kwargs):
         super().__init__(True, True, **kwargs)
         self._text_entity = Text(text="0",parent=self,color=color.black, scale=SPATIAL_HASH_TEXT_BOID_SCALE,position=Vec3(0,4,0),billboard=True)
         self._target_mask = 0xFFFFFFFF
