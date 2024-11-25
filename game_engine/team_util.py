@@ -9,17 +9,17 @@ class TeamUtil:
     MAX_ALLOWED_POINTS = 100
     
     class ETeam(Enum):
-        Francois = 1<<0
-        Vincent = 1<<1
-        DanielLeMysterieux = 1<<2
-        Bettina = 1<<3
-        Gabriel = 1<<4
-        Abigail = 1<<5
-        Emeric = 1<<6
-        Elias = 1<<7
-        MarcAndre = 1<<8
-        Neutral = 1<<9
-        Undefined = 1<<10
+        Francois = 1<<1
+        Vincent = 1<<2
+        DanielLeMysterieux = 1<<3
+        Bettina = 1<<4
+        Gabriel = 1<<5
+        Abigail = 1<<6
+        Emeric = 1<<7
+        Elias = 1<<8
+        MarcAndre = 1<<9
+        Neutral = 1<<10
+        Undefined = 1<<11
 
     team_color_dict = {
         ETeam.Francois:color.magenta,
