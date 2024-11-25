@@ -45,9 +45,8 @@ def parameter_distance(scale):
         return scale*distance
     return distance
 
-separation_func= parameter_inverse(-30.0,0.1)
-cohesion_func= parameter_squared_inverse(180.0,0.1)
-separation_funky_func = parameter_squared_inverse(190.0,10.0)
+separation_func= parameter_squared_inverse(-90.0,0.1)
+cohesion_func= parameter_inverse(50.0,0.1)
 
 def randomize_boid_position(boid,box_min:Vec2=Vec2(-25.0,-25.0),box_max:Vec2=Vec2(25.0,25.0))->None:
     boid._position.x = random.uniform(box_min.x,box_max.x)
