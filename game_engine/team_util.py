@@ -4,6 +4,10 @@ from ursina import Vec2,color
 from popgame.constant import *
 
 class TeamUtil:
+    
+    MAX_ALLOWED_SPAWN_SQUARE_SIZE = 150.0
+    MAX_ALLOWED_POINTS = 100
+    
     class ETeam(Enum):
         Francois = 1<<0
         Vincent = 1<<1
@@ -29,8 +33,6 @@ class TeamUtil:
         ETeam.Undefined:color.white
     }
 
-    MAX_ALLOWED_SPAWN_RADIUS = 150.0
-    MAX_ALLOWED_POINTS = 100
     team_relative_start_position_dict = {
         ETeam.Francois:Vec2(1,0),
         ETeam.Vincent:Vec2(-1,0),
