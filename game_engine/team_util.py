@@ -11,6 +11,7 @@ class TeamUtil:
     class ETeam(Enum):
         Francois = 1<<0
         Vincent = 1<<1
+        DanielLeMysterieux = 1<<2
         Bettina = 1<<3
         Gabriel = 1<<4
         Abigail = 1<<5
