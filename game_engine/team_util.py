@@ -4,7 +4,6 @@ from ursina import Vec2,color
 from popgame.constant import *
 
 class TeamUtil:
-    
     MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE = 5.0
     MAX_ALLOWED_POINTS = 20
     RELATIVE_TEAM_DISTANCE = 0.8

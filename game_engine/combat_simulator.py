@@ -26,7 +26,15 @@ class CombatSimulator(Entity):
     def update(self):
         for team in self._team_set:
             team.on_update()
-
+        self.evaluate_damage()
+        
+    def produce_pairs(self):
+        #Avec spatial hash, vérifier les paires et les distances. Attention aux limites, on doit faire un test de +1 ou -1
+        pass
+    
+    def evaluate_damage(self, bcuA, bcuB):
+        pass
+    
     def stop(self):
         for team in self._team_set:
             team.on_stop()
