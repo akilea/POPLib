@@ -3,6 +3,7 @@ from ursina.shaders import lit_with_shadows_shader
 from ..math import length_3D
 from .sample_texture import *
 from ..boid_system.spatial_hash import *
+from ..game_engine.team_util import TeamUtil
 from ..constant import *
 
 def run_basic_scene():
@@ -24,6 +25,11 @@ def run_border_scene():
     create_line(c[1],c[2],color.orange)
     create_line(c[2],c[3],color.orange)
     create_line(c[3],c[0],color.orange)
+    return app
+
+def run_border_scene_with_team_zones():
+    app = run_border_scene()
+    create_team_zones()
     return app
 
 def run_level_grass_scene():
@@ -58,7 +64,7 @@ def create_expected_result_text(expect_result : str)->None:
 
 def create_cloudy_castle():
     castle = Entity()
-    app = run_border_scene()
+    app = run_border_scene_with_team_zones()
     castle_texture = 'brick'  # You can replace this with your custom texture path
 
     # Create the castle walls
@@ -119,7 +125,7 @@ def create_line(start,finish,color,width=0.1):
     delta = finish-start
     length = length_3D(delta)
     center = (finish+start)*0.5
-    l = Entity(model='plane', scale=Vec3(width,width,length),shader=lit_with_shadows_shader,color=color)
+    l = Entity(model='plane', scale=Vec3(width,width,length),color=color)
     l.set_position(center)
     l.look_at(center+delta)
     return l
@@ -202,8 +208,8 @@ class SpatialHashGridCounter(Entity):
         for x in range(int(SPATIAL_HASH_VEC_OFFSET_2D.x), int(SPATIAL_HASH_VEC_OFFSET_2D.x + width), grid_size):
             for y in range(int(SPATIAL_HASH_VEC_OFFSET_2D.y), int(SPATIAL_HASH_VEC_OFFSET_2D.y + height), grid_size):
                 cell = SpatialHash.instance().hash(Vec2(x,y))
-                center_x = x + grid_size / 2
-                center_y = y + grid_size / 2
+                center_x = x - grid_size / 2
+                center_y = y - grid_size / 2
                 parent_entity = Entity(position=Vec3(center_x, SPATIAL_HASH_TEXT_HEIGHT,center_y))
                 text_entity = Text(text="0",parent=parent_entity,color=color.black, scale=SPATIAL_HASH_TEXT_SCALE)
                 text_entities[cell] = text_entity
@@ -229,14 +235,51 @@ class SpatialHashGridCounter(Entity):
         self._start_index = end_index if end_index < total_cells else 0
 
 class SpatialHashUnitCounter(Entity):
-    def __init__(self, entity_to_attach_to,restricted_boid, distance=1,target_mask = 0xFFFFFFF,**kwargs):
+    def __init__(self, entity_to_attach_to,restricted_boid, distance=30.0,target_mask = 0xFFFFFFF,**kwargs):
         super().__init__(True, True, **kwargs)
-        self._text_entity = Text(text="0",parent=self,color=color.black, scale=SPATIAL_HASH_TEXT_BOID_SCALE,position=Vec3(0,4,0),billboard=True)
+        self._text_entity = Text(text="0",parent=self,color=color.black, scale=SPATIAL_HASH_TEXT_BOID_SCALE,position=Vec3(0,6,0),billboard=True)
         self._target_mask = 0xFFFFFFFF
-        self._distance = 1
+        self._distance = distance
         self._restricted_boid = restricted_boid
         self.parent = entity_to_attach_to
+        hash_dist = SpatialHash.instance().safe_hash_range(distance)
+        self._str_distance = str("\ndist:") + str(distance) + str("\ncell dist:") + str(hash_dist)
 
     def update(self):
         nearby_boids = SpatialHash.instance().get_nearby_boids_by_bitmask(self._restricted_boid, self._target_mask,self._distance)
-        self._text_entity.text = str(len(nearby_boids))
+        self._text_entity.text = str(len(nearby_boids)) + self._str_distance
+        
+class Radius(Entity):
+     def __init__(self, entity_to_attach_to, distance=30.0,**kwargs):
+        super().__init__(True, True, model=Circle(radius=distance, mode='line', thickness=3),**kwargs)
+        self.rotation = Vec3(90,0,0)
+        self._text_entity = Text(text="r="+str(distance),parent=entity_to_attach_to,color=color.black, scale=SPATIAL_HASH_TEXT_BOID_SCALE,position=Vec3(0,8,0),billboard=True)
+        self.parent = entity_to_attach_to
+        
+class TeamZone():
+    def __init__(self, position:Vec2, size:float, color:Color,name:str):
+        cube_col = copy(color)
+        cube_col[3] = 0.7
+        offset = 0.5
+        self._center = Entity(model='quad',color=cube_col,scale=offset,shader=lit_with_shadows_shader)
+        self._center.position = Vec3(position.x,offset,position.y)
+        size_vec = Vec2(size,size)
+        c = create_corners(position-size_vec,position+size_vec,0.05)
+        create_line(c[0],c[1],color)
+        create_line(c[1],c[2],color)
+        create_line(c[2],c[3],color)
+        create_line(c[3],c[0],color)
+        self._team_text = Text(text=name,parent=self._center,scale=TEAM_ZONE_TEXT_SCALE)
+        self._team_text.position = Vec3(0,0.15,0)
+        self._team_text.origin = Vec2(0,0)
+        self._team_text.color = color
+        
+def create_team_zones():
+    for t in TeamUtil.ETeam:
+        if TeamUtil.contains_only_player(t):
+            v = t
+            p = TeamUtil.get_team_position(v)
+            s = TeamUtil.MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE
+            c = TeamUtil.get_team_color(v)
+            n = TeamUtil.get_team_name(v)
+            TeamZone(p,s,c,n)
