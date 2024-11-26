@@ -12,18 +12,22 @@ class SpatialHash(Entity):
     def __init__(self):
         super().__init__()
         self.grid_size = SPATIAL_HASH_GRID_SIZE
+        self.half_grid_size = self.grid_size * 0.5
         # Each cell now maps to a list of boids, as groups will be filtered using bitmask
         self._cells = defaultdict(list)
         self._registered_boid_set = set()
 
     def hash(self, vec):
         """Generate a hash for a position based on grid size."""
-        h = (int(vec.x // self.grid_size), int(vec.y // self.grid_size))
+        h = (vec.X // self.grid_size, vec.Y // self.grid_size)
         #print(vec,h)
         return h
     
     def hash1D(self,x:float):
-        return x // self.grid_size
+        return int(x) // self.grid_size
+    
+    def safe_hash_range(self,distance:float):
+        return self.hash1D(distance)+1
 
     def register_boid(self, restricted_boid):
         """Add a boid to the grid based on its position."""
@@ -67,14 +71,15 @@ class SpatialHash(Entity):
                 pass
         return c
 
-    def get_nearby_boids_by_bitmask(self, boid, target_mask=0xFFFFFFF,distance=1,include_caller_boid = False):
+    def get_nearby_boids_by_bitmask(self, boid, target_mask=0xFFFFFFF,distance=10.0,include_caller_boid = False):
         """Get boids from specific groups (using bitmask) in the neighboring cells."""
-        # if distance > SPATIAL_HASH_MAX_DISTANCE_REQUEST:
-        #     raise ValueError("Request distance too high.")
+        cell_dist = self.safe_hash_range(distance)
+        if cell_dist > SPATIAL_HASH_MAX_DISTANCE_REQUEST:
+            raise ValueError("Request distance too high.")
         cell_x, cell_y = self.hash(boid._position)
         neighbors = []
-        for dx in [-distance, 0, distance]:
-            for dy in [-distance, 0, distance]:
+        for dx in range(-cell_dist, cell_dist):
+            for dy in range(-cell_dist, cell_dist):
                 cell = (cell_x + dx, cell_y + dy)
                 if cell in self._cells:
                     # Filter boids in this cell using the bitmask
