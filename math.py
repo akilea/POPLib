@@ -30,6 +30,11 @@ def rotate_2D(v:Vec2,angle_degree:float)->Vec2:
     t = rotate_around_point_2d(v,Vec2(0,0),angle_degree)
     return Vec2(t[0],t[1])
 
+def parameter_constant(value):
+    def const(distance):
+        return value
+    return const
+
 def parameter_inverse(scale, offset):
     def inverse(distance):
         return scale/(distance + offset)
@@ -45,8 +50,9 @@ def parameter_distance(scale):
         return scale*distance
     return distance
 
-separation_func= parameter_squared_inverse(-90.0,0.1)
-cohesion_func= parameter_inverse(50.0,0.1)
+separation_func= parameter_squared_inverse(-25.0,0.1)
+#cohesion_func= parameter_inverse(100.0,2.0) #Pas si mal non plus
+cohesion_func= parameter_constant(5.0)
 separation_funky_func = parameter_squared_inverse(190.0,10.0)
 
 def randomize_boid_position(boid,box_min:Vec2=Vec2(-25.0,-25.0),box_max:Vec2=Vec2(25.0,25.0))->None:

@@ -1,25 +1,26 @@
-from combat_simulator import CombatSimulator
-from score_board import ScoreBoard
+from popgame.game_engine.combat_simulator import CombatSimulator
+from popgame.game_engine.score_board import ScoreBoard
 from ursina import *
 
 class PopEngine(Entity):
     def __init__(self) -> None:
-        self.__cs = CombatSimulator()
-        self.__sb = ScoreBoard()
-        self.go_to_preparation()
-        #create intro
-        #create scores
-        #create outro
+        self._cs = CombatSimulator()
+        self._sb = ScoreBoard()
         
     def go_to_preparation(self):
-        self.__cs.build_teams()
+        self._sb.display_intro()
+        self._cs.build_teams()
+        for t in self._cs._team_set:
+            self._sb.add_health_bar(t.team_flag)
 
     def go_to_simulation(self):
-        self.__cs.start()
+        self._cs.start()
+        self._sb.display_score()
 
     def go_to_end_game(self):
-        self.__cs.end()
-        
+        self._cs.end()
+        self._sb.display_end()
+
     def input(self,key):
         pass
     

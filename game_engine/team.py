@@ -3,7 +3,7 @@ from popgame.game_engine.team_util import TeamUtil
 class Team:
     def __init__(self,team_flag):
         self._team_flag = team_flag
-        if team_flag % 2 != 0:
+        if team_flag.value % 2 != 0:
             raise Exception("Team is a flag, not a mask: only a single bit needs to be used.")
         self._boid_combat_unit_set = set()
         

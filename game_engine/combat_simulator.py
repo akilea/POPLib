@@ -48,7 +48,7 @@ class CombatSimulator(Entity):
             raise Exception("No team provided")
         if new_team in self._team_set:
             raise Exception("Team already registered")
-        if self._total_team_mask & new_team.team_flag != 0:
+        if self._total_team_mask & new_team.team_flag.value != 0:
             raise Exception("Team with flag already registered")
         if not isinstance(new_team,Team):
             raise Exception("Class is not a Team class")
