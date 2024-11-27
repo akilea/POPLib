@@ -18,6 +18,7 @@ class CombatSimulator(Entity):
             col = TeamUtil.get_team_color(team.team_flag)
             contr = TeamUtil.get_team_input_control(team.team_flag)
             team.on_build_team(col,pos,contr,TeamUtil.MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE,TeamUtil.MAX_ALLOWED_POINTS)
+            team.on_stop()
 
     def start(self):
         for team in self._team_set:
