@@ -2,9 +2,13 @@
 from ursina import *
 from popgame.game_engine.team import Team  
 from popgame.game_engine.team_util import TeamUtil
+from popgame.boid_system.spatial_hash import SpatialHash
+from popgame.constant import UNIT_DAMAGE_RADIUS_SQUARED
+from itertools import combinations
 
 class CombatSimulator(Entity):
     def __init__(self):
+        super().__init__()
         self._team_set = set()
         self._total_team_mask = 0x000000
         
@@ -18,7 +22,6 @@ class CombatSimulator(Entity):
             col = TeamUtil.get_team_color(team.team_flag)
             contr = TeamUtil.get_team_input_control(team.team_flag)
             team.on_build_team(col,pos,contr,TeamUtil.MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE,TeamUtil.MAX_ALLOWED_POINTS)
-            team.on_stop()
 
     def start(self):
         for team in self._team_set:
@@ -27,14 +30,32 @@ class CombatSimulator(Entity):
     def update(self):
         for team in self._team_set:
             team.on_update()
-        self.evaluate_damage()
+        self.produce_pairs()
         
     def produce_pairs(self):
-        #Avec spatial hash, vérifier les paires et les distances. Attention aux limites, on doit faire un test de +1 ou -1
-        pass
+        sh = SpatialHash.instance()
+        for key,bs in sh._cells.items():
+            if len(bs) > 1:
+                cell_pairs = list(combinations(bs, 2))
+                cell_pairs_filtered = filter(CombatSimulator.are_ennemy_,cell_pairs)
+                for pair in cell_pairs_filtered:
+                    self.evaluate_damage(pair[0],pair[1])
+
+    @staticmethod
+    def are_ennemy_(tuple_b):
+        return (tuple_b[0].get_group_mask() & tuple_b[1].get_group_mask()) == 0
+
+    @staticmethod
+    def are_ennemy(ba,bb):
+        return (ba.get_group_mask() & bb.get_group_mask()) == 0
     
-    def evaluate_damage(self, bcuA, bcuB):
-        pass
+    @staticmethod
+    def are_friend(ba,bb):
+        return (ba.get_group_mask() & bb.get_group_mask()) != 0
+    
+    def evaluate_damage(self, bA, bB):
+        if UNIT_DAMAGE_RADIUS_SQUARED > bA.get_squared_distance_from(bA.get_position()):
+            print("check for instances!",bA,bB)
     
     def stop(self):
         for team in self._team_set:
