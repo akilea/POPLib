@@ -7,18 +7,22 @@ class PopEngine(Entity):
         super().__init__(True,True)
         self._cs = CombatSimulator()
         self._sb = ScoreBoard()
-        self._state = 0
+        self._state = -999
+        self._wait_update_for_state_change = -1 #Nothing
         
-    def go_to_preparation(self):
-        self._sb.display_intro()
+    def go_to_load(self):
         self._cs.build_teams()
         for t in self._cs._team_set:
             self._sb.add_health_bar(t.team_flag)
-        self._state = 0
+        self._state = 1
+        self._wait_update_for_state_change = 1
+
+    def go_to_preparation_freeze(self):
+        self._cs.stop()
+        self._sb.display_intro()
 
     def go_to_simulation(self):
-        self._cs.start()
-        self._sb.display_score()
+        self._sb.launch_countdown(self._cs.start)
 
     def go_to_end_game(self):
         self._cs.end()
@@ -26,14 +30,24 @@ class PopEngine(Entity):
 
     def input(self,key):
         print(key)
-        if "space" == key:
-            if self._state == 0:
-                self.go_to_simulation()
+        if self._wait_update_for_state_change == -1 and "space" == key:
+            if self._state == 1:
+                self._wait_update_for_state_change = 0
+                self._state = 2
 
-    
     def update(self):
-        pass
-    
+        if self._wait_update_for_state_change >= 0:
+            self._wait_update_for_state_change -= 1
+            if self._wait_update_for_state_change < 0:
+                if self._state == 0:
+                    self.go_to_load()
+                if self._state == 1:
+                    self.go_to_preparation_freeze()
+                if self._state == 2:
+                    self.go_to_simulation()
+                if self._state == 3:
+                    self.go_to_end_game()
+
     def on_bcu_death(self,bcu):
         #ParticleSystem boom!
         #Scoreboard

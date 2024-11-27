@@ -19,6 +19,10 @@ class ScoreBoard():
         self._intro_text.visible_setter(False)
         self._intro_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
 
+        self._start_count_down_text =  Text(text="3",color=color.azure,scale=10.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True)
+        self._start_count_down_text.visible_setter(False)
+        self._start_count_down_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.4,color.black50)
+
         self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,2.0),ignore_paused=True)
         self._next_text.visible_setter(False)
         self._next_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
@@ -54,16 +58,25 @@ class ScoreBoard():
 
     def display_intro(self):
         self._intro_text.visible_setter(True)
-        self._intro_text.appear(0.1)
+        self._intro_text.appear(0.08)
         self._next_text.visible_setter(True)
         self.show_score(False)
         self._end_text.visible_setter(False)
+        self._start_count_down_text.visible_setter(False)
+
+    def display_countdown(self):
+        self._intro_text.visible_setter(False)
+        self._next_text.visible_setter(False)
+        self.show_score(True)
+        self._end_text.visible_setter(False)
+        self._start_count_down_text.visible_setter(True)
     
     def display_score(self):
         self._intro_text.visible_setter(False)
         self.show_score(True)
         self._end_text.visible_setter(False)
         self._next_text.visible_setter(False)
+        self._start_count_down_text.visible_setter(False)
     
     def display_end(self):
         self._intro_text.visible_setter(False)
@@ -71,3 +84,23 @@ class ScoreBoard():
         self._end_text.visible_setter(True)
         self._end_text.appear(0.1)
         self._next_text.visible_setter(True)
+        self._start_count_down_text.visible_setter(False)
+
+    def launch_countdown(self,callable):
+        self.display_countdown()
+        s = Sequence(
+            Func(self._display_countdown,"3"),
+            Wait(1.0),
+            Func(self._display_countdown,"2"),
+            Wait(1.0),
+            Func(self._display_countdown,"1"),
+            Wait(1.0),
+            Func(self._display_countdown,"Go!!!"),
+            Func(callable),
+            Wait(0.5),
+            Func(self._start_count_down_text.visible_setter,False)
+        )
+        s.start()
+
+    def _display_countdown(self,msg):
+        self._start_count_down_text.text = msg
