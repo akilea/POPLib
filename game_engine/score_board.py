@@ -1,6 +1,7 @@
 from ursina import *
 from ursina.prefabs.health_bar import HealthBar
 from popgame.game_engine.team_util import TeamUtil
+from popgame.constant import COUNT_DOWN_WAIT_TIME
 
 class ScoreBoard():
     def __init__(self):
@@ -21,7 +22,7 @@ class ScoreBoard():
 
         self._start_count_down_text =  Text(text="3",color=color.azure,scale=10.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True)
         self._start_count_down_text.visible_setter(False)
-        self._start_count_down_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.4,color.black50)
+        self._start_count_down_text.create_background(self._intro_text.size*1.5,self._intro_text.size*0.7,color.black33)
 
         self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,2.0),ignore_paused=True)
         self._next_text.visible_setter(False)
@@ -35,6 +36,8 @@ class ScoreBoard():
         self._score_txt_dict = dict()
         self._hp_delta = Vec3(0.0,-0.07,0)
         
+        self._team_left_set = set()
+
     def add_health_bar(self,team_flag:TeamUtil.ETeam):
         name = TeamUtil.get_team_name(team_flag)
         col = TeamUtil.get_team_color(team_flag)
@@ -43,12 +46,19 @@ class ScoreBoard():
         txt_scale = 0.9* Vec2(1.0/scale.x,1.0/scale.y)
         self._score_dict[team_flag] = HealthBar(bar_color=col.tint(-.25), roundness=.1, max_value=TeamUtil.MAX_ALLOWED_POINTS, value=TeamUtil.MAX_ALLOWED_POINTS, scale=scale,show_lines=False,position=window.top_left+hp_origin,ignore_paused=True)
         self._score_txt_dict[team_flag] = Text(text=name,color=col,scale=txt_scale, wordwrap=30,parent=self._score_dict[team_flag],position=Vec3(0,0.6,0),ignore_paused=True)
-        #self._score_dict[team_flag].visible_setter(False)
-        #self._score_txt_dict[team_flag].visible_setter(False)
         self._score_txt_dict[team_flag].create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black90)
+
+        self._team_left_set.add(team_flag)
 
     def sub_team_score(self,team_flag:TeamUtil.ETeam,delta:int):
         self._score_dict[team_flag].value = self._score_dict[team_flag].value - delta
+        if self._score_dict[team_flag].value < 0:
+            raise Exception("Tannant...")
+        if self._score_dict[team_flag].value == 0:
+            if team_flag in self._team_left_set:
+                self._team_left_set.remove(team_flag)
+                #raise Exception("Pas normal...")
+        return len(self._team_left_set)
 
     def show_score(self,is_visible):
         for k,v in self._score_dict.items():
@@ -90,14 +100,14 @@ class ScoreBoard():
         self.display_countdown()
         s = Sequence(
             Func(self._display_countdown,"3"),
-            Wait(1.0),
+            Wait(COUNT_DOWN_WAIT_TIME),
             Func(self._display_countdown,"2"),
-            Wait(1.0),
+            Wait(COUNT_DOWN_WAIT_TIME),
             Func(self._display_countdown,"1"),
-            Wait(1.0),
+            Wait(COUNT_DOWN_WAIT_TIME),
             Func(self._display_countdown,"Go!!!"),
             Func(callable),
-            Wait(0.5),
+            Wait(COUNT_DOWN_WAIT_TIME*0.5),
             Func(self._start_count_down_text.visible_setter,False)
         )
         s.start()

@@ -5,7 +5,7 @@ from ursina import *
 class PopEngine(Entity):
     def __init__(self) -> None:
         super().__init__(True,True)
-        self._cs = CombatSimulator()
+        self._cs = CombatSimulator(self.on_bcu_death)
         self._sb = ScoreBoard()
         self._state = -999
         self._wait_update_for_state_change = -1 #Nothing
@@ -29,7 +29,6 @@ class PopEngine(Entity):
         self._sb.display_end()
 
     def input(self,key):
-        print(key)
         if self._wait_update_for_state_change == -1 and "space" == key:
             if self._state == 1:
                 self._wait_update_for_state_change = 0
@@ -48,7 +47,6 @@ class PopEngine(Entity):
                 if self._state == 3:
                     self.go_to_end_game()
 
-    def on_bcu_death(self,bcu):
-        #ParticleSystem boom!
-        #Scoreboard
-        pass
+    def on_bcu_death(self,cul):
+        if self._sb.sub_team_score(cul.team_flag,1) == 1:
+            raise Exception("On va au gagnant!")

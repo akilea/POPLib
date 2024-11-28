@@ -19,7 +19,7 @@ def length_squared_2D(v:Vec2)->float:
 def length_3D(v:Vec3)->float:
     return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z)
 
-def change_length_2D(v:Vec2,length:float)->Vec2:
+def change_length_2D(v:Vec2,length:float=1.0)->Vec2:
     ret = Vec2(0.0,0.0)
     l = length_2D(v)
     if l > 0.0:

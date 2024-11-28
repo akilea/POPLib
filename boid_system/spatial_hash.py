@@ -56,7 +56,6 @@ class SpatialHash(Entity):
             self._cells[old_cell].remove(restricted_boid)
             self._cells[new_cell].append(restricted_boid)
 
-
     def remove_boid(self, boid):
         """Remove a boid from its cell when deleted or moved."""
         cell = self.hash(boid._position)

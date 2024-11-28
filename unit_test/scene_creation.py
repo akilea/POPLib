@@ -15,7 +15,7 @@ def run_basic_scene():
     en.set_position(Vec3(0.0,-WORLD_HALF_SIZE,0.0))
     l = Lava()
     sk = Sky(color=color.light_gray)
-    cam = EditorCamera(position=Vec3(0,50,-100),rotation=(27,0,0))
+    cam = EditorCamera(position=Vec3(0,50,-100)*2.5,rotation=(27,0,0))
     return app
 
 def run_border_scene():
@@ -105,16 +105,20 @@ def create_cloudy_castle():
     castle.position = Vec3(0,0,WORLD_HALF_SIZE+10)
 
     # Create some clouds
-    cloud1 = Cloud(position=(-20, 15, -10), scale=(6, 3, 3), speed=0.02)
-    cloud2 = Cloud(position=(0, 18, -15), scale=(7, 4, 4), speed=0.015)
-    cloud3 = Cloud(position=(20, 12, 5), scale=(6, 2, 2), speed=0.01)
-    cloud3 = Cloud(position=(-10, 9, 10), scale=(3, 1, 1), speed=0.03)
+    # Cloud(position=(-20, 15, -10), scale=(6, 3, 3), speed=0.02)
+    # Cloud(position=(0, 18, -15), scale=(7, 4, 4), speed=0.015)
+    # Cloud(position=(20, 12, 5), scale=(6, 2, 2), speed=0.01)
+    # Cloud(position=(-10, 9, 10), scale=(3, 1, 1), speed=0.03)
+    # Cloud(position=(-4, 0, 10), scale=(2, 1, 2), speed=0.009)
+    # Cloud(position=(4, 3, 9), scale=(2, 4, 2), speed=0.006)
+
+
 
     # Add a radiant sun
-    sun = Entity(model='sphere', position=(30, 10, -10), scale=(5, 5, 5), texture='white_cube', color=color.yellow)
+    #sun = Entity(model='sphere', position=(30, 10, -10), scale=(5, 5, 5), texture='white_cube', color=color.yellow)
 
     # Add a light to make the sun radiant
-    sun_light = PointLight(parent=sun, position=(0, 0, 0), color=color.yellow, radius=50, intensity=1.5)
+    sun_light = PointLight(position=(30, 10, -10), color=color.yellow, radius=50, intensity=1.5)
 
     return app
 
@@ -140,7 +144,7 @@ class Cloud(Entity):
         super().__init__(
             model='cube',
             texture='white_cube',  # You can replace this with a cloud texture
-            color=color.white,
+            color=color.white50,
             position=position,
             scale=scale,
             collider=None
