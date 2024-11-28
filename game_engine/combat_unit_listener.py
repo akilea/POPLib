@@ -14,6 +14,7 @@ class CombatUnitListener(Entity):
         Zone = 3
     
     def __init__(self,unit_type:EUnitType,team_flag) -> None:
+        super().__init__()
         self._old_position = Vec3()
         self._velocity = Vec3()
 
@@ -79,11 +80,11 @@ class CombatUnitListener(Entity):
         return self._damage_multiplier
     
     def update(self):
-        self._velocity = (self.position - self._current_position) * self._one_over_delta
+        self._velocity = (self.position - self.position) * self._one_over_delta
         self._current_position = copy(self.position)
 
     def velocity_check(self):
-        v = self._velocity
+        v = self.get_velocity()
         if length_squared_2D(v) > self._max_velocity_squared:
             self._callable_on_velocity_check_fail(v)
 
