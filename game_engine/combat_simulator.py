@@ -35,7 +35,7 @@ class CombatSimulator(Entity):
                 self._boid_to_combat_unit_listener_map[cu.get_boid()] = cul
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
-                cu.get_boid()._boid_algorithm.append(balgo_rep)
+                cu.add_algorithm(balgo_rep)
                 balgo_rep.set_owner(cu.get_boid())
 
     def start(self):
