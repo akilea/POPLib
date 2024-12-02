@@ -1,5 +1,6 @@
 from popgame.game_engine.combat_simulator import CombatSimulator
 from popgame.game_engine.score_board import ScoreBoard
+from popgame.game_engine.team import Team
 from ursina import *
 
 class PopEngine(Entity):
@@ -27,7 +28,10 @@ class PopEngine(Entity):
     def go_to_end_game(self):
         self._cs.end()
         self._sb.display_end()
-
+        
+    def register_team(self,team:Team):
+        self._cs.register_team(team)
+        
     def input(self,key):
         if self._wait_update_for_state_change == -1 and "space" == key:
             if self._state == 1:

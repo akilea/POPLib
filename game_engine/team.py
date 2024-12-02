@@ -31,8 +31,13 @@ class Team:
     def on_reset(self):
         self._combat_unit_set.clear()
     
-    def register_boid(self,bcu):
+    def register_boid(self,bcu,unit_type:TeamUtil.Unit):
         if bcu in self._combat_unit_set:
             raise Exception("Boid Combat Unit already registered!")
               
         self._combat_unit_set.add(bcu)
+        
+    # def compute_total_point(self):
+    #     pt = 0.0
+    #     for b in self._combat_unit_set:
+    #         pt += 
