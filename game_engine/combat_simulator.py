@@ -8,12 +8,13 @@ from popgame.boid_system.spatial_hash import SpatialHash
 from popgame.constant import UNIT_DAMAGE_RADIUS_SQUARED
 from popgame.boid_system.boid_algorithm_repulse import BoidAlgorithmRepulse
 from popgame.math import *
+from popgame.game_engine.game_event_subscription import *
 from itertools import combinations
 
 class CombatSimulator(Entity):
     def __init__(self,callable_on_bcu_death):
         super().__init__()
-        self._team_set = set()
+        self._team_dict = dict()
         self._total_team_mask = 0x000000
         #Little hacky but good enough
         self._boid_to_combat_unit_watcher_map = dict()
@@ -25,8 +26,7 @@ class CombatSimulator(Entity):
         return self._total_team_mask
         
     def build_teams(self):
-        for team in self._team_set:
-            team_info = team._info
+        for team_info,team in self._team_dict.items():
             pos = team_info.rel_start_pos
             col = team_info.color
             contr = team_info.control_dict
@@ -44,13 +44,7 @@ class CombatSimulator(Entity):
                 
                 cu.scale *= unit_info.model_scale
 
-    def start(self):
-        for team in self._team_set:
-            team.on_start()
-
     def update(self):
-        for team in self._team_set:
-            team.on_update()
         self.produce_pairs()
         
     def produce_pairs(self):
@@ -83,7 +77,7 @@ class CombatSimulator(Entity):
         attack_dmg = int(abs(attack_multiplier) * winner_cuw.damage_multiplier)
 
         if attack_dmg < 0:
-            raise Exception("Yikes!")
+            raise Exception("Damage negative: impossible!")
         if attack_dmg == 0:
             attack_dmg = 1
             
@@ -92,16 +86,63 @@ class CombatSimulator(Entity):
 
         winner_cuw.deal_damage(attack_dmg,-projectionWinToLost)
         if loser_cuw.receive_damage_and_test_death(attack_dmg,projectionWinToLost):
-            loser_cuw.die()
-            self._internal_on_bcu_death_callable(loser_cuw)
-            #Hacky, use setter
-            loser_boid._group_mask = ETeamInfo.Ghost.flag
-            
+            self.kill_unit(loser_cuw,loser_boid)
         else:
             rep_algoL = self._boid_to_repulse_algo_map[loser_boid]
             rep_algoL.activate(direction=projectionWinToLost)
             rep_algoW = self._boid_to_repulse_algo_map[winner_boid]
             rep_algoW.activate(direction=-projectionWinToLost)
+    
+    def start(self):
+        payload = OnGameStart_Payload()
+        for team in self._team_dict.values():
+            team.ge_subscription.on_game_start(payload)
+
+    def stop(self):
+        payload = OnGameStop_Payload()
+        for team in self._team_dict.values():
+            team.ge_subscription.on_game_stop(payload)
+
+    def reset(self):
+        payload = OnGameReset_Payload()
+        for team in self._team_dict.values():
+            team.ge_subscription.on_game_reset(payload)
+
+    def kill_unit(self,cuw,boid):
+        team_info = cuw.team_info
+        payload = OnUnitDeath_Payload()
+        cuw.cu_subscription.on_unit_death_callable(payload)
+        t = self._team_dict.get(team_info,None)
+        if t:
+            t.ge_subscription.on_unit_death_callable(payload)
+
+        #Break encapsulation a bit, but better that way
+        cuw.die()
+        boid.set_group_mask(ETeamInfo.Ghost.flag)
+        self._internal_on_bcu_death_callable(cuw)
+
+    def elimiate_team(self,team_info):
+        payload = OnTeamEliminated_Payload()
+        t = self._team_dict.get(team_info,None)
+        if t:
+            t.ge_subscription.on_team_elimiated(payload)
+
+    def win_team(self,team_info):
+        payload = OnTeamWinning_Payload()
+        t = self._team_dict.get(team_info,None)
+        if t:
+            t.ge_subscription.on_team_winning(payload)
+
+    def register_team(self,new_team:Team):
+        if new_team is None:
+            raise Exception("No team provided")
+        if new_team in self._team_dict:
+            raise Exception("Team already registered")
+        if self._total_team_mask & new_team.info.flag != 0:
+            raise Exception("Team with flag already registered")
+        if not isinstance(new_team,Team):
+            raise Exception("Class is not a Team class")
+        self._team_dict[new_team.info] = new_team
 
     @staticmethod
     def are_ennemy_tuple(tuple_b):
@@ -118,22 +159,3 @@ class CombatSimulator(Entity):
     @staticmethod
     def are_friend(ba,bb):
         return (ba.get_group_mask() & bb.get_group_mask()) != 0
-    
-    def stop(self):
-        for team in self._team_set:
-            team.on_stop()
-
-    def reset(self):
-        for team in self._team_set:
-            team.on_reset()
-
-    def register_team(self,new_team:Team):
-        if new_team is None:
-            raise Exception("No team provided")
-        if new_team in self._team_set:
-            raise Exception("Team already registered")
-        if self._total_team_mask & new_team.info.flag != 0:
-            raise Exception("Team with flag already registered")
-        if not isinstance(new_team,Team):
-            raise Exception("Class is not a Team class")
-        self._team_set.add(new_team)

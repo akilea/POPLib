@@ -13,8 +13,8 @@ class PopEngine(Entity):
         
     def go_to_load(self):
         self._cs.build_teams()
-        for t in self._cs._team_set:
-            self._sb.add_health_bar(t.info,t.compute_total_point())
+        for info,team in self._cs._team_dict.items():
+            self._sb.add_health_bar(info,team.compute_total_point())
         self._state = 1
         self._wait_update_for_state_change = 1
 
@@ -52,5 +52,8 @@ class PopEngine(Entity):
                     self.go_to_end_game()
 
     def kill_bcu(self,cuw):
-        if self._sb.sub_team_score(cuw.team_flag,1) == 1:
-            raise Exception("On va au gagnant!")
+        if self._sb.sub_team_score(cuw.team_info,1):
+            self._cs.elimiate_team(cuw.team_info)
+            winner_info = self._sb.try_get_winner_team_info()
+            if winner_info:
+                self._cs.win_team(winner_info)

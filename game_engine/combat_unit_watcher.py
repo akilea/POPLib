@@ -1,9 +1,9 @@
 from ursina import *
-from ursina import color
+from ursina import shaders
 from enum import Enum
 from popgame.game_engine.team_util import *
 from popgame.math import length_squared_2D
-from popgame.game_engine.combat_unit_subscription import *
+from popgame.game_engine.game_event_subscription import *
 
 class CombatUnitWatcher(Entity):
    
@@ -12,7 +12,7 @@ class CombatUnitWatcher(Entity):
         self._old_position = Vec3()
         self._velocity = Vec3()
         
-        self._ghost = Text("Ghost",parent=self,scale=100.0,ignore_paused=True,position=Vec3(0,5,0),color=color.yellow,billboard=True)
+        self._ghost = Text("Ghost",parent=self,scale=30.0,ignore_paused=True,position=Vec3(0,3,0),color=color.yellow,billboard=True,shader=shaders.unlit_shader,origin=(0.0,0.5))
         self._ghost.visible_setter(False)
         self._ghost.create_background(self._ghost.size*0.5,self._ghost.size*0.8,color.red)
         
@@ -27,7 +27,7 @@ class CombatUnitWatcher(Entity):
         return self._unit_type
     
     @property
-    def team_flag(self):
+    def team_info(self):
         return self._team_info
     
     def get_velocity(self):
@@ -44,7 +44,7 @@ class CombatUnitWatcher(Entity):
         self._velocity = (self.position - self.position) * self._one_over_delta
         self._current_position = copy(self.position)
 
-    def velocity_check(self):
+    def velocity_check(self)->bool:
         v = self.get_velocity()
         if length_squared_2D(v) > self.unit_type.max_velocity_squared:
             self.cu_subscription._callable_on_velocity_check_fail(OnVelocityCheckFailed_Payload(sqrt(v),self.unit_type.max_velocity))
@@ -59,7 +59,7 @@ class CombatUnitWatcher(Entity):
         
     def die(self):
         self._ghost.visible_setter(True)
-        self.cu_subscription.on_death_callable(OnDeath_Payload())
+        self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload())
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:

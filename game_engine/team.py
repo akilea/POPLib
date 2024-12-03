@@ -1,19 +1,28 @@
 from ursina.color import Color
 from popgame.game_engine.combat_unit_watcher import CombatUnitWatcher
+from popgame.game_engine.game_event_subscription import *
 from popgame.game_engine.team_util import ETeamInfo,EUnitInfo,MAX_ALLOWED_POINTS
 class Team:
-    def __init__(self,team_info):
+    def __init__(self,team_info:ETeamInfo,ge_subscription:TeamSubscription):
         self._info = team_info
         if team_info.flag % 2 != 0:
             raise Exception("Team is a flag, not a mask: only a single bit needs to be used.")
         self._dict_cu_to_unity_type = dict()
+        self._ge_subscription = ge_subscription
         
     @property
     def info(self):
         return self._info
     
+    @property
+    def ge_subscription(self):
+        return self._ge_subscription
+    
     def boid_combat_units(self):
         return self._dict_cu_to_unity_type.keys()
+    
+    def unit_info(self,bcu):
+        return self._dict_cu_to_unity_type.get(bcu,None)
         
     """Create Boid Combat Units inside""" 
     def on_build_team(self):

@@ -25,7 +25,7 @@ class CombatUnitListener(Entity):
         return self._unit_type
     
     @property
-    def team_flag(self):
+    def team_info(self):
         return self._team_info
     
     def get_velocity(self):

@@ -52,14 +52,22 @@ class ScoreBoard():
 
     def sub_team_score(self,team_flag:ETeamInfo,delta:int):
         self._score_dict[team_flag].value = self._score_dict[team_flag].value - delta
+        is_team_eliminated = False
         if self._score_dict[team_flag].value < 0:
             raise Exception("Tannant...")
         if self._score_dict[team_flag].value == 0:
             if team_flag in self._team_left_set:
                 self._team_left_set.remove(team_flag)
-                #raise Exception("Pas normal...")
-        return len(self._team_left_set)
-
+                is_team_eliminated = True
+        return is_team_eliminated
+    
+    def try_get_winner_team_info(self):
+        if len(self._team_left_set) == 0:
+            raise Exception("No winner? Should not happen...")
+        if len(self._team_left_set) == 1:
+            return next(iter(self._team_left_set))
+        return None
+        
     def show_score(self,is_visible):
         for k,v in self._score_dict.items():
             v.visible_setter(is_visible)
