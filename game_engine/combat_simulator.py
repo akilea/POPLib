@@ -2,7 +2,7 @@
 from ursina import *
 from popgame.game_engine.team import Team  
 from popgame.game_engine.combat_unit_listener import CombatUnitListener  
-from popgame.game_engine.team_util import TeamUtil
+from popgame.game_engine.team_util import *
 from popgame.boid_system.spatial_hash import SpatialHash
 from popgame.constant import UNIT_DAMAGE_RADIUS_SQUARED
 from popgame.boid_system.boid_algorithm_repulse import BoidAlgorithmRepulse
@@ -25,13 +25,14 @@ class CombatSimulator(Entity):
         
     def build_teams(self):
         for team in self._team_set:
-            pos = TeamUtil.get_team_position(team.team_flag)
-            col = TeamUtil.get_team_color(team.team_flag)
-            contr = TeamUtil.get_team_input_control(team.team_flag)
-            team.on_build_team(col,pos,contr,TeamUtil.MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE,TeamUtil.MAX_ALLOWED_POINTS)
+            team_info = team._info
+            pos = team_info.rel_start_pos
+            col = team_info.color
+            contr = team_info.control_dict
+            team.on_build_team(col,pos,contr,MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE,MAX_ALLOWED_POINTS)
             #Register all mapped boids to their combat unit
-            for cu in team._combat_unit_set :
-                cul = CombatUnitListener(unit_type=CombatUnitListener.EUnitType.Light,team_flag=team.team_flag)
+            for cu,unit_type in team._dict_cu_to_unity_type.items() :
+                cul = CombatUnitListener(team_info=team_info,unit_type=unit_type)
                 self._boid_to_combat_unit_listener_map[cu.get_boid()] = cul
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
@@ -119,7 +120,7 @@ class CombatSimulator(Entity):
             raise Exception("No team provided")
         if new_team in self._team_set:
             raise Exception("Team already registered")
-        if self._total_team_mask & new_team.team_flag.value != 0:
+        if self._total_team_mask & new_team.team_flag.flag != 0:
             raise Exception("Team with flag already registered")
         if not isinstance(new_team,Team):
             raise Exception("Class is not a Team class")

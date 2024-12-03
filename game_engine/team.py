@@ -1,18 +1,22 @@
 from ursina.color import Color
-from popgame.game_engine.team_util import TeamUtil
+from popgame.game_engine.combat_unit_listener import CombatUnitListener
+from popgame.game_engine.team_util import ETeam,EUnitType
 class Team:
-    def __init__(self,team_flag):
-        self._team_flag = team_flag
-        if team_flag.value % 2 != 0:
+    def __init__(self,team_info):
+        self._info = team_info
+        if team_info.flag % 2 != 0:
             raise Exception("Team is a flag, not a mask: only a single bit needs to be used.")
-        self._combat_unit_set = set()
+        self._dict_cu_to_unity_type = dict()
         
     @property
     def team_flag(self):
-        return self._team_flag
+        return self._info
+    
+    def boid_combat_units(self):
+        return self._dict_cu_to_unity_type.keys()
         
     """Create Boid Combat Units inside""" 
-    def on_build_team(self,team_color:Color,team_position:TeamUtil.ETeam,team_control:str, team_radius:float, max_points:int):
+    def on_build_team(self,team_color:Color,team_position:ETeam,team_control:str, team_radius:float, max_points:int):
         raise NotImplementedError()
 
     """Boids can start moving""" 
@@ -29,15 +33,16 @@ class Team:
     
     """Systems must reset as if empty. You will need to customize this."""
     def on_reset(self):
-        self._combat_unit_set.clear()
+        self._dict_cu_to_unity_type.clear()
     
-    def register_boid(self,bcu,unit_type:TeamUtil.Unit):
-        if bcu in self._combat_unit_set:
+    def register_boid(self,bcu,unit_type:EUnitType):
+        if bcu in self._dict_cu_to_unity_type.keys():
             raise Exception("Boid Combat Unit already registered!")
               
-        self._combat_unit_set.add(bcu)
+        self._dict_cu_to_unity_type[bcu] = unit_type
         
-    # def compute_total_point(self):
-    #     pt = 0.0
-    #     for b in self._combat_unit_set:
-    #         pt += 
+    def compute_total_point(self):
+        pt = 0
+        for v in self._dict_cu_to_unity_type.values():
+            pt += v.value
+        return pt

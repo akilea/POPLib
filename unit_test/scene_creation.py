@@ -3,7 +3,7 @@ from ursina.shaders import lit_with_shadows_shader
 from ..math import length_3D
 from .sample_texture import *
 from ..boid_system.spatial_hash import *
-from ..game_engine.team_util import TeamUtil
+from ..game_engine.team_util import *
 from ..constant import *
 
 def run_basic_scene():
@@ -15,7 +15,7 @@ def run_basic_scene():
     en.set_position(Vec3(0.0,-WORLD_HALF_SIZE,0.0))
     l = Lava()
     sk = Sky(color=color.light_gray)
-    cam = EditorCamera(position=Vec3(0,50,-100)*2.5,rotation=(27,0,0))
+    cam = EditorCamera(position=Vec3(0,50,-100)*1.2,rotation=(27,0,0))
     return app
 
 def run_border_scene():
@@ -279,11 +279,11 @@ class TeamZone():
         self._team_text.color = color
         
 def create_team_zones():
-    for t in TeamUtil.ETeam:
-        if TeamUtil.contains_only_player(t):
-            v = t
-            p = TeamUtil.get_team_position(v)
-            s = TeamUtil.MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE
-            c = TeamUtil.get_team_color(v)
-            n = TeamUtil.get_team_name(v)
+    for t in ETeam:
+        if ETeam.contains_only_player(t):
+            v = t.flag
+            p = t.rel_start_pos * WORLD_SIZE_BOUNDARY_MAX
+            s = MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE
+            c = t.color
+            n = t.player_name
             TeamZone(p,s,c,n)

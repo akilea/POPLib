@@ -62,6 +62,7 @@ class SpatialHash(Entity):
         self._cells[cell].remove(boid)
 
     def debug_get_all_boids(self,boid, target_mask=0xFFFFFFF,distance=1,include_caller_boid = False):
+        raise Exception("Cannot use this method anymore. Use get_nearby_boids_by_bitmask")
         c = copy(self._registered_boid_set)
         if not include_caller_boid:
             try:
@@ -84,7 +85,7 @@ class SpatialHash(Entity):
                     # Filter boids in this cell using the bitmask
                     neighbors.extend(
                         [other_boid for other_boid in self._cells[cell] 
-                         if other_boid._group_mask & target_mask]
+                         if other_boid.get_group_mask() & target_mask]
                     )
         if not include_caller_boid:
             try:
