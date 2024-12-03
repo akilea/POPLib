@@ -1,6 +1,6 @@
 from ursina.color import Color
 from popgame.game_engine.combat_unit_listener import CombatUnitListener
-from popgame.game_engine.team_util import ETeam,EUnitType
+from popgame.game_engine.team_util import ETeamInfo,EUnitInfo
 class Team:
     def __init__(self,team_info):
         self._info = team_info
@@ -16,7 +16,7 @@ class Team:
         return self._dict_cu_to_unity_type.keys()
         
     """Create Boid Combat Units inside""" 
-    def on_build_team(self,team_color:Color,team_position:ETeam,team_control:str, team_radius:float, max_points:int):
+    def on_build_team(self,team_color:Color,team_position:ETeamInfo,team_control:str, team_radius:float, max_points:int):
         raise NotImplementedError()
 
     """Boids can start moving""" 
@@ -35,7 +35,7 @@ class Team:
     def on_reset(self):
         self._dict_cu_to_unity_type.clear()
     
-    def register_boid(self,bcu,unit_type:EUnitType):
+    def register_boid(self,bcu,unit_type:EUnitInfo):
         if bcu in self._dict_cu_to_unity_type.keys():
             raise Exception("Boid Combat Unit already registered!")
               

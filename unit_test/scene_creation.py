@@ -279,8 +279,8 @@ class TeamZone():
         self._team_text.color = color
         
 def create_team_zones():
-    for t in ETeam:
-        if ETeam.contains_only_player(t):
+    for t in ETeamInfo:
+        if ETeamInfo.contains_only_player(t):
             v = t.flag
             p = t.rel_start_pos * WORLD_SIZE_BOUNDARY_MAX
             s = MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE

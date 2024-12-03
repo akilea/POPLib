@@ -38,7 +38,7 @@ class ScoreBoard():
         
         self._team_left_set = set()
 
-    def add_health_bar(self,team_info:ETeam):
+    def add_health_bar(self,team_info:ETeamInfo):
         name = team_info.player_name
         col = team_info.color
         hp_origin = self._hp_delta * (len(self._score_dict) +1)
@@ -50,7 +50,7 @@ class ScoreBoard():
 
         self._team_left_set.add(team_info)
 
-    def sub_team_score(self,team_flag:ETeam,delta:int):
+    def sub_team_score(self,team_flag:ETeamInfo,delta:int):
         self._score_dict[team_flag].value = self._score_dict[team_flag].value - delta
         if self._score_dict[team_flag].value < 0:
             raise Exception("Tannant...")

@@ -5,7 +5,7 @@ from popgame.math import length_squared_2D
 
 class CombatUnitListener(Entity):
    
-    def __init__(self,team_info:ETeam,unit_type:EUnitType) -> None:
+    def __init__(self,team_info:ETeamInfo,unit_type:EUnitInfo) -> None:
         super().__init__()
         self._old_position = Vec3()
         self._velocity = Vec3()

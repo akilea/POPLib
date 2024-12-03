@@ -3,7 +3,7 @@ from ursina import Vec2,color
 
 from popgame.constant import *
 
-class EUnitType(Enum):
+class EUnitInfo(Enum):
     Light = (1,100,20,1.0)
     Medium = (2,200,15,2.0)
     Heavy = (3,350,10,3.0)
@@ -24,7 +24,7 @@ MAX_ALLOWED_POINTS = 50
 RELATIVE_TEAM_DISTANCE = 0.8
 RELATIVE_TEAM_HALF_DISTANCE = RELATIVE_TEAM_DISTANCE*0.5
 
-class ETeam(Enum):
+class ETeamInfo(Enum):
     Vincent=  (1<<2, "Vincent",color.olive,Vec2(-RELATIVE_TEAM_DISTANCE,0),"wasd")
     Francois = (1<<1, "Francois",color.magenta,Vec2(RELATIVE_TEAM_DISTANCE,0),"wasd")
     Bettina = (1<<3, "Bettina",color.blue,Vec2(0,RELATIVE_TEAM_DISTANCE),"wasd")
@@ -65,4 +65,4 @@ class ETeam(Enum):
 
     @staticmethod
     def contains_only_player(team_mask):
-        return team_mask.flag & ETeam.Neutral.flag == 0 and team_mask.flag & ETeam.Undefined.flag == 0 and team_mask.flag < ETeam.Neutral.flag
+        return team_mask.flag & ETeamInfo.Neutral.flag == 0 and team_mask.flag & ETeamInfo.Undefined.flag == 0 and team_mask.flag < ETeamInfo.Neutral.flag
