@@ -1,6 +1,7 @@
 
 from ursina import *
 from popgame.game_engine.team import Team  
+from popgame.game_engine.team_util import ETeamInfo
 from popgame.game_engine.combat_unit_watcher import CombatUnitWatcher  
 from popgame.game_engine.team_util import *
 from popgame.boid_system.spatial_hash import SpatialHash
@@ -15,9 +16,9 @@ class CombatSimulator(Entity):
         self._team_set = set()
         self._total_team_mask = 0x000000
         #Little hacky but good enough
-        self._boid_to_combat_unit_listener_map = dict()
+        self._boid_to_combat_unit_watcher_map = dict()
         self._boid_to_repulse_algo_map = dict()
-        self._callable_on_bcu_death = callable_on_bcu_death
+        self._internal_on_bcu_death_callable = callable_on_bcu_death
         
     @property
     def total_team_mask(self):
@@ -33,7 +34,8 @@ class CombatSimulator(Entity):
             #Register all mapped boids to their combat unit
             for cu,unit_info in team._dict_cu_to_unity_type.items() :
                 cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info)
-                self._boid_to_combat_unit_listener_map[cu.get_boid()] = cuw
+                cuw.parent=cu
+                self._boid_to_combat_unit_watcher_map[cu.get_boid()] = cuw
                 
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
@@ -53,11 +55,12 @@ class CombatSimulator(Entity):
         
     def produce_pairs(self):
         sh = SpatialHash.instance()
-        for key,bs in sh._cells.items():
+        for bs in sh._cells.values():
             if len(bs) > 1:
                 cell_pairs = list(combinations(bs, 2))
-                cell_pairs_filtered = filter(CombatSimulator.are_ennemy_tuple,cell_pairs)
-                for pair in cell_pairs_filtered:
+                cell_pairs_en = filter(CombatSimulator.are_ennemy_tuple,cell_pairs)
+                cell_pairs_en_alive = filter(CombatSimulator.are_alive,cell_pairs_en)
+                for pair in cell_pairs_en_alive:
                     if UNIT_DAMAGE_RADIUS_SQUARED > pair[0].get_squared_distance_from(pair[1].get_position()):
                         self.resolve_damage(pair[0],pair[1])
 
@@ -67,9 +70,9 @@ class CombatSimulator(Entity):
         if repA.activated or repA.activated:
             return
 
-        cuwA = self._boid_to_combat_unit_listener_map[bA]
-        cuwB = self._boid_to_combat_unit_listener_map[bB]
-        deltaMomentumBToA = bA.get_velocity() * cuwA.unit_type.value - bB.get_velocity() * cuwB.unit_type.value
+        cuwA = self._boid_to_combat_unit_watcher_map[bA]
+        cuwB = self._boid_to_combat_unit_watcher_map[bB]
+        deltaMomentumBToA = bA.get_velocity() - bB.get_velocity()
         directionBtoA = change_length_2D(bA.get_position() - bB.get_position(),1.0)
         attack_multiplier = dot_2D(directionBtoA,deltaMomentumBToA)
         winner_is_a = attack_multiplier > 0.0
@@ -83,16 +86,18 @@ class CombatSimulator(Entity):
             raise Exception("Yikes!")
         if attack_dmg == 0:
             attack_dmg = 1
+            
+        winner_boid = bA if winner_is_a else bB
+        loser_boid = bA if not winner_is_a else bB
 
-        print(attack_dmg)
         winner_cuw.deal_damage(attack_dmg,-projectionWinToLost)
         if loser_cuw.receive_damage_and_test_death(attack_dmg,projectionWinToLost):
             loser_cuw.die()
-            self._callable_on_bcu_death(loser_cuw)
+            self._internal_on_bcu_death_callable(loser_cuw)
+            #Hacky, use setter
+            loser_boid._group_mask = ETeamInfo.Ghost.flag
+            
         else:
-            winner_boid = bA if winner_is_a else bB
-            loser_boid = bA if not winner_is_a else bB
-
             rep_algoL = self._boid_to_repulse_algo_map[loser_boid]
             rep_algoL.activate(direction=projectionWinToLost)
             rep_algoW = self._boid_to_repulse_algo_map[winner_boid]
@@ -105,6 +110,10 @@ class CombatSimulator(Entity):
     @staticmethod
     def are_ennemy(ba,bb):
         return (ba.get_group_mask() & bb.get_group_mask()) == 0
+    
+    @staticmethod
+    def are_alive(tuple_b):
+        return (tuple_b[0].get_group_mask() != 0 and tuple_b[1].get_group_mask()) != 0
     
     @staticmethod
     def are_friend(ba,bb):

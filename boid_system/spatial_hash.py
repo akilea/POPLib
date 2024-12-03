@@ -47,7 +47,7 @@ class SpatialHash(Entity):
     def update_boid_cell(self,restricted_boid):
         """Move a boid from one cell to another if its position changed."""
         if restricted_boid not in self._registered_boid_set:
-            raise Exception("")
+            return
         old_cell = self.hash(restricted_boid.get_old_position())
         new_cell = self.hash(restricted_boid.get_position())
         # print(f"restricted_boid.get_old_position():{restricted_boid.get_old_position()}, restricted_boid.get_position():{restricted_boid.get_position()}")
@@ -76,6 +76,8 @@ class SpatialHash(Entity):
         cell_dist = self.safe_hash_range(distance)
         if cell_dist > SPATIAL_HASH_MAX_DISTANCE_REQUEST:
             raise ValueError("Request distance too high.")
+        if boid.get_group_mask() == 0:
+            return []
         cell_x, cell_y = self.hash(boid._position)
         neighbors = []
         for dx in range(-cell_dist, cell_dist):

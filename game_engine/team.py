@@ -18,21 +18,8 @@ class Team:
     """Create Boid Combat Units inside""" 
     def on_build_team(self):
         raise NotImplementedError()
-
-    """Boids can start moving""" 
-    def on_start(self):
-        raise NotImplementedError()
     
-    """Boids must update""" 
-    def on_update(self):
-        raise NotImplementedError()
-    
-    """Boids must stop moving""" 
-    def on_stop(self):
-        raise NotImplementedError()
-    
-    """Systems must reset as if empty. You will need to customize this."""
-    def on_reset(self):
+    def reset(self):
         self._dict_cu_to_unity_type.clear()
     
     def register_boid(self,bcu,unit_type:EUnitInfo):
@@ -42,8 +29,6 @@ class Team:
         if pt > MAX_ALLOWED_POINTS:
             raise Exception(f"Max amounts of points {MAX_ALLOWED_POINTS} surpassed (is {pt})!")
         
-        print (f"Max amounts of points {MAX_ALLOWED_POINTS} surpassed (is {pt})!")
-              
         self._dict_cu_to_unity_type[bcu] = unit_type
         
     def compute_total_point(self):

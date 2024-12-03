@@ -38,13 +38,13 @@ class ScoreBoard():
         
         self._team_left_set = set()
 
-    def add_health_bar(self,team_info:ETeamInfo):
+    def add_health_bar(self,team_info:ETeamInfo,total_point):
         name = team_info.player_name
         col = team_info.color
         hp_origin = self._hp_delta * (len(self._score_dict) +1)
         scale=Vec2(.3,0.03)
         txt_scale = 0.9* Vec2(1.0/scale.x,1.0/scale.y)
-        self._score_dict[team_info] = HealthBar(bar_color=col.tint(-.25), roundness=.1, max_value=MAX_ALLOWED_POINTS, value=MAX_ALLOWED_POINTS, scale=scale,show_lines=False,position=window.top_left+hp_origin,ignore_paused=True)
+        self._score_dict[team_info] = HealthBar(bar_color=col.tint(-.25), roundness=.1, max_value=MAX_ALLOWED_POINTS, value=total_point, scale=scale,show_lines=False,position=window.top_left+hp_origin,ignore_paused=True)
         self._score_txt_dict[team_info] = Text(text=name,color=col,scale=txt_scale, wordwrap=30,parent=self._score_dict[team_info],position=Vec3(0,0.6,0),ignore_paused=True)
         self._score_txt_dict[team_info].create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black90)
 

@@ -4,9 +4,9 @@ from ursina import Vec2,color
 from popgame.constant import *
 
 class EUnitInfo(Enum):
-    Light = (1,100,20,1.0,0.8)
-    Medium = (2,200,15,2.0,1.2)
-    Heavy = (3,350,10,3.0,1.8)
+    Light =  (1, 10, 20, 1.0, 0.8)
+    Medium = (2, 20, 15, 2.0, 1.0)
+    Heavy =  (3, 35, 10, 3.0, 1.2)
     
     def __init__(self, cost:int,max_hp:int,max_velocity:float,damage_multiplier:float,model_scale:float):
         self.cost = cost
@@ -37,6 +37,7 @@ class ETeamInfo(Enum):
     MarcAndre = (1<<8, "MarcAndre",color.peach,Vec2(-RELATIVE_TEAM_HALF_DISTANCE,RELATIVE_TEAM_HALF_DISTANCE),"wasd")
     Neutral = (1<<9, "Neutral",color.smoke,Vec2(0,0),"wasd")
     Undefined = (1<<10, "Undefined",color.white,Vec2(0,0),"wasd")
+    Ghost = (0x0, "Undefined",color.white,Vec2(0,0),"wasd")
 
     def __init__(self, flag:int, player_name:str,col:color,rel_start_pos:Vec2,control_dict:dict):
         self.color = col

@@ -1,24 +1,26 @@
 from ursina import *
+from ursina import color
 from enum import Enum
 from popgame.game_engine.team_util import *
 from popgame.math import length_squared_2D
+from popgame.game_engine.combat_unit_subscription import *
 
 class CombatUnitWatcher(Entity):
    
-    def __init__(self,team_info:ETeamInfo,unit_type:EUnitInfo) -> None:
+    def __init__(self,team_info:ETeamInfo,unit_type:EUnitInfo,cu_subscription:CombatUnitSubscription=CombatUnitSubscription()) -> None:
         super().__init__()
         self._old_position = Vec3()
         self._velocity = Vec3()
-
+        
+        self._ghost = Text("Ghost",parent=self,scale=100.0,ignore_paused=True,position=Vec3(0,5,0),color=color.yellow,billboard=True)
+        self._ghost.visible_setter(False)
+        self._ghost.create_background(self._ghost.size*0.5,self._ghost.size*0.8,color.red)
+        
         self._team_info = team_info
         self._unit_type = unit_type
         self._hp = self._unit_type.max_hp
         self._one_over_delta = 1.0 / 60.0
-
-        self._callable_on_death = lambda *args: None
-        self._callable_on_receive_damage = lambda *args: None
-        self._callable_on_deal_damage = lambda *args: None
-        self._callable_on_velocity_check_fail = lambda *args: None
+        self.cu_subscription = cu_subscription
 
     @property
     def unit_type(self):
@@ -33,18 +35,6 @@ class CombatUnitWatcher(Entity):
     
     def get_position(self):
         return CombatUnitWatcher.game_space_to_boid_space(self._velocity)
-    
-    def subscribe_on_death(self,callable_on_death):
-        self._callable_on_death
-
-    def subscribe_on_receive_damage(self,callable_on_death):
-        self._callable_on_receive_damage
-
-    def subscribe_on_deal_damage(self,callable_on_death):
-        self._callable_on_deal_damage
-
-    def on_velocity_check_fail(self,callable_on_death):
-        self._callable_on_velocity_check_fail
         
     @property
     def damage_multiplier(self):
@@ -56,19 +46,20 @@ class CombatUnitWatcher(Entity):
 
     def velocity_check(self):
         v = self.get_velocity()
-        if length_squared_2D(v) > self._max_velocity_squared:
-            self._callable_on_velocity_check_fail(v)
+        if length_squared_2D(v) > self.unit_type.max_velocity_squared:
+            self.cu_subscription._callable_on_velocity_check_fail(OnVelocityCheckFailed_Payload(sqrt(v),self.unit_type.max_velocity))
 
     def receive_damage_and_test_death(self,hitpoint:int,projection_direction:Vec2)->bool:
         self._hp -= hitpoint
-        self._callable_on_receive_damage(hitpoint,projection_direction)
+        self.cu_subscription.on_collision_damage_callable(OnCollisionDamage_Payload(hitpoint,projection_direction))
         return self._hp <= 0
             
     def deal_damage(self,hitpoint:int,projection_direction:Vec2):
-        self._callable_on_deal_damage(hitpoint,projection_direction)
+        self.cu_subscription.on_deal_damage_callable(OnDealDamage_Payload(hitpoint,projection_direction))
         
     def die(self):
-        self._callable_on_death()
+        self._ghost.visible_setter(True)
+        self.cu_subscription.on_death_callable(OnDeath_Payload())
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:
