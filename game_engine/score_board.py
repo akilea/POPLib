@@ -24,7 +24,7 @@ class ScoreBoard():
         self._start_count_down_text.visible_setter(False)
         self._start_count_down_text.create_background(self._intro_text.size*1.5,self._intro_text.size*0.7,color.black33)
 
-        self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,2.0),ignore_paused=True)
+        self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,3.0),ignore_paused=True)
         self._next_text.visible_setter(False)
         self._next_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
 

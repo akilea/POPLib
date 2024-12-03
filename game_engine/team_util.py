@@ -45,6 +45,7 @@ class ETeamInfo(Enum):
         self.rel_start_pos = rel_start_pos
         self.control_dict = control_dict
         self.player_name = player_name
+        self.abs_start_pos = rel_start_pos * WORLD_SIZE_BOUNDARY_MAX
 
     @staticmethod
     def get_team_flag_value(team_flag):
