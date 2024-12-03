@@ -31,13 +31,16 @@ class CombatSimulator(Entity):
             contr = team_info.control_dict
             team.on_build_team()
             #Register all mapped boids to their combat unit
-            for cu,unit_type in team._dict_cu_to_unity_type.items() :
-                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_type)
+            for cu,unit_info in team._dict_cu_to_unity_type.items() :
+                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info)
                 self._boid_to_combat_unit_listener_map[cu.get_boid()] = cuw
+                
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
                 cu.add_algorithm(balgo_rep)
                 balgo_rep.set_owner(cu.get_boid())
+                
+                cu.scale *= unit_info.model_scale
 
     def start(self):
         for team in self._team_set:

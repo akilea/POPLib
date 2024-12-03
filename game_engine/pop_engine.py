@@ -6,7 +6,7 @@ from ursina import *
 class PopEngine(Entity):
     def __init__(self) -> None:
         super().__init__(True,True)
-        self._cs = CombatSimulator(self.on_bcu_death)
+        self._cs = CombatSimulator(self.kill_bcu)
         self._sb = ScoreBoard()
         self._state = -999
         self._wait_update_for_state_change = -1 #Nothing
@@ -51,6 +51,6 @@ class PopEngine(Entity):
                 if self._state == 3:
                     self.go_to_end_game()
 
-    def on_bcu_death(self,cuw):
+    def kill_bcu(self,cuw):
         if self._sb.sub_team_score(cuw.team_flag,1) == 1:
             raise Exception("On va au gagnant!")

@@ -4,16 +4,17 @@ from ursina import Vec2,color
 from popgame.constant import *
 
 class EUnitInfo(Enum):
-    Light = (1,100,20,1.0)
-    Medium = (2,200,15,2.0)
-    Heavy = (3,350,10,3.0)
+    Light = (1,100,20,1.0,0.8)
+    Medium = (2,200,15,2.0,1.2)
+    Heavy = (3,350,10,3.0,1.8)
     
-    def __init__(self, cost:int,max_hp:int,max_velocity:float,damage_multiplier:float):
+    def __init__(self, cost:int,max_hp:int,max_velocity:float,damage_multiplier:float,model_scale:float):
         self.cost = cost
         self.max_hp = max_hp
         self.max_velocity = max_velocity
         self.max_velocity_squared = max_velocity * max_velocity
         self.damage_multiplier = damage_multiplier
+        self.model_scale = model_scale
         
 class EDamageType(Enum):
     Collision = 1
