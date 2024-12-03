@@ -14,7 +14,7 @@ class PopEngine(Entity):
     def go_to_load(self):
         self._cs.build_teams()
         for t in self._cs._team_set:
-            self._sb.add_health_bar(t.team_flag)
+            self._sb.add_health_bar(t.info)
         self._state = 1
         self._wait_update_for_state_change = 1
 

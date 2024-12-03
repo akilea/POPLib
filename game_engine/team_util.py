@@ -9,6 +9,7 @@ class EUnitInfo(Enum):
     Heavy = (3,350,10,3.0)
     
     def __init__(self, cost:int,max_hp:int,max_velocity:float,damage_multiplier:float):
+        self.cost = cost
         self.max_hp = max_hp
         self.max_velocity = max_velocity
         self.max_velocity_squared = max_velocity * max_velocity

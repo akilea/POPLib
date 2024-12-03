@@ -1,6 +1,6 @@
 from ursina.color import Color
 from popgame.game_engine.combat_unit_listener import CombatUnitListener
-from popgame.game_engine.team_util import ETeamInfo,EUnitInfo
+from popgame.game_engine.team_util import ETeamInfo,EUnitInfo,MAX_ALLOWED_POINTS
 class Team:
     def __init__(self,team_info):
         self._info = team_info
@@ -9,14 +9,14 @@ class Team:
         self._dict_cu_to_unity_type = dict()
         
     @property
-    def team_flag(self):
+    def info(self):
         return self._info
     
     def boid_combat_units(self):
         return self._dict_cu_to_unity_type.keys()
         
     """Create Boid Combat Units inside""" 
-    def on_build_team(self,team_color:Color,team_position:ETeamInfo,team_control:str, team_radius:float, max_points:int):
+    def on_build_team(self):
         raise NotImplementedError()
 
     """Boids can start moving""" 
@@ -38,11 +38,16 @@ class Team:
     def register_boid(self,bcu,unit_type:EUnitInfo):
         if bcu in self._dict_cu_to_unity_type.keys():
             raise Exception("Boid Combat Unit already registered!")
+        pt = self.compute_total_point()
+        if pt > MAX_ALLOWED_POINTS:
+            raise Exception(f"Max amounts of points {MAX_ALLOWED_POINTS} surpassed (is {pt})!")
+        
+        print (f"Max amounts of points {MAX_ALLOWED_POINTS} surpassed (is {pt})!")
               
         self._dict_cu_to_unity_type[bcu] = unit_type
         
     def compute_total_point(self):
         pt = 0
         for v in self._dict_cu_to_unity_type.values():
-            pt += v.value
+            pt += v.cost
         return pt

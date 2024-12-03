@@ -29,7 +29,7 @@ class CombatSimulator(Entity):
             pos = team_info.rel_start_pos
             col = team_info.color
             contr = team_info.control_dict
-            team.on_build_team(col,pos,contr,MAX_ALLOWED_SPAWN_SQUARE_HALF_SIZE,MAX_ALLOWED_POINTS)
+            team.on_build_team()
             #Register all mapped boids to their combat unit
             for cu,unit_type in team._dict_cu_to_unity_type.items() :
                 cul = CombatUnitListener(team_info=team_info,unit_type=unit_type)
@@ -120,7 +120,7 @@ class CombatSimulator(Entity):
             raise Exception("No team provided")
         if new_team in self._team_set:
             raise Exception("Team already registered")
-        if self._total_team_mask & new_team.team_flag.flag != 0:
+        if self._total_team_mask & new_team.info.flag != 0:
             raise Exception("Team with flag already registered")
         if not isinstance(new_team,Team):
             raise Exception("Class is not a Team class")
