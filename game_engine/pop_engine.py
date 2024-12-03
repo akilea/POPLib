@@ -26,7 +26,7 @@ class PopEngine(Entity):
         self._sb.launch_countdown(self._cs.start)
 
     def go_to_end_game(self):
-        self._cs.end()
+        self._cs.stop()
         self._sb.display_end()
         
     def register_team(self,team:Team):
@@ -57,3 +57,5 @@ class PopEngine(Entity):
             winner_info = self._sb.try_get_winner_team_info()
             if winner_info:
                 self._cs.win_team(winner_info)
+                self._state = 3
+                self._wait_update_for_state_change = 120

@@ -2,6 +2,7 @@ from ursina import *
 
 class TeamSubscription:
     def __init__(self) -> None:
+        self.on_build_team = lambda payload: None
         self.on_game_start = lambda payload: None
         self.on_game_stop = lambda payload: None
         self.on_game_reset = lambda payload: None
@@ -16,6 +17,9 @@ class CombatUnitSubscription:
         self.on_deal_damage_callable = lambda payload: None
         self.on_velocity_check_failed_callable = lambda payload: None
         self.on_receive_zone_damage_callable = lambda payload: None
+
+class OnBuildTeam_Payload():
+    pass
 
 class OnGameStart_Payload():
     pass

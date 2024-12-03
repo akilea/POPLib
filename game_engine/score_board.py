@@ -99,6 +99,9 @@ class ScoreBoard():
     def display_end(self):
         self._intro_text.visible_setter(False)
         self.show_score(True)
+        team_info = next(iter(self._team_left_set))
+        if team_info:
+            self._end_text.text = f"Winner is {team_info.player_name}"
         self._end_text.visible_setter(True)
         self._end_text.appear(0.1)
         self._next_text.visible_setter(True)

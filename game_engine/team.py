@@ -17,17 +17,13 @@ class Team:
     @property
     def ge_subscription(self):
         return self._ge_subscription
-    
+    @property
     def boid_combat_units(self):
         return self._dict_cu_to_unity_type.keys()
     
     def unit_info(self,bcu):
         return self._dict_cu_to_unity_type.get(bcu,None)
-        
-    """Create Boid Combat Units inside""" 
-    def on_build_team(self):
-        raise NotImplementedError()
-    
+           
     def reset(self):
         self._dict_cu_to_unity_type.clear()
     
