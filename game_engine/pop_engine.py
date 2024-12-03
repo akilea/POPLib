@@ -51,6 +51,6 @@ class PopEngine(Entity):
                 if self._state == 3:
                     self.go_to_end_game()
 
-    def on_bcu_death(self,cul):
-        if self._sb.sub_team_score(cul.team_flag,1) == 1:
+    def on_bcu_death(self,cuw):
+        if self._sb.sub_team_score(cuw.team_flag,1) == 1:
             raise Exception("On va au gagnant!")

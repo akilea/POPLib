@@ -1,5 +1,5 @@
 from ursina.color import Color
-from popgame.game_engine.combat_unit_listener import CombatUnitListener
+from popgame.game_engine.combat_unit_watcher import CombatUnitWatcher
 from popgame.game_engine.team_util import ETeamInfo,EUnitInfo,MAX_ALLOWED_POINTS
 class Team:
     def __init__(self,team_info):

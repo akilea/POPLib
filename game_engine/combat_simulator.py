@@ -1,7 +1,7 @@
 
 from ursina import *
 from popgame.game_engine.team import Team  
-from popgame.game_engine.combat_unit_listener import CombatUnitListener  
+from popgame.game_engine.combat_unit_watcher import CombatUnitWatcher  
 from popgame.game_engine.team_util import *
 from popgame.boid_system.spatial_hash import SpatialHash
 from popgame.constant import UNIT_DAMAGE_RADIUS_SQUARED
@@ -32,8 +32,8 @@ class CombatSimulator(Entity):
             team.on_build_team()
             #Register all mapped boids to their combat unit
             for cu,unit_type in team._dict_cu_to_unity_type.items() :
-                cul = CombatUnitListener(team_info=team_info,unit_type=unit_type)
-                self._boid_to_combat_unit_listener_map[cu.get_boid()] = cul
+                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_type)
+                self._boid_to_combat_unit_listener_map[cu.get_boid()] = cuw
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
                 cu.add_algorithm(balgo_rep)
@@ -64,17 +64,17 @@ class CombatSimulator(Entity):
         if repA.activated or repA.activated:
             return
 
-        culA = self._boid_to_combat_unit_listener_map[bA]
-        culB = self._boid_to_combat_unit_listener_map[bB]
-        deltaMomentumBToA = bA.get_velocity() * culA.unit_type.value - bB.get_velocity() * culB.unit_type.value
+        cuwA = self._boid_to_combat_unit_listener_map[bA]
+        cuwB = self._boid_to_combat_unit_listener_map[bB]
+        deltaMomentumBToA = bA.get_velocity() * cuwA.unit_type.value - bB.get_velocity() * cuwB.unit_type.value
         directionBtoA = change_length_2D(bA.get_position() - bB.get_position(),1.0)
         attack_multiplier = dot_2D(directionBtoA,deltaMomentumBToA)
         winner_is_a = attack_multiplier > 0.0
-        winner_cul = culA if winner_is_a else culB
-        looser_cul = culA if not winner_is_a else culB
+        winner_cuw = cuwA if winner_is_a else cuwB
+        loser_cuw = cuwA if not winner_is_a else cuwB
         projectionWinToLost = deltaMomentumBToA if winner_is_a else -deltaMomentumBToA
         projectionWinToLost = change_length_2D(projectionWinToLost)
-        attack_dmg = int(abs(attack_multiplier) * winner_cul.damage_multiplier)
+        attack_dmg = int(abs(attack_multiplier) * winner_cuw.damage_multiplier)
 
         if attack_dmg < 0:
             raise Exception("Yikes!")
@@ -82,15 +82,15 @@ class CombatSimulator(Entity):
             attack_dmg = 1
 
         print(attack_dmg)
-        winner_cul.deal_damage(attack_dmg,-projectionWinToLost)
-        if looser_cul.receive_damage_and_test_death(attack_dmg,projectionWinToLost):
-            looser_cul.die()
-            self._callable_on_bcu_death(looser_cul)
+        winner_cuw.deal_damage(attack_dmg,-projectionWinToLost)
+        if loser_cuw.receive_damage_and_test_death(attack_dmg,projectionWinToLost):
+            loser_cuw.die()
+            self._callable_on_bcu_death(loser_cuw)
         else:
             winner_boid = bA if winner_is_a else bB
-            looser_boid = bA if not winner_is_a else bB
+            loser_boid = bA if not winner_is_a else bB
 
-            rep_algoL = self._boid_to_repulse_algo_map[looser_boid]
+            rep_algoL = self._boid_to_repulse_algo_map[loser_boid]
             rep_algoL.activate(direction=projectionWinToLost)
             rep_algoW = self._boid_to_repulse_algo_map[winner_boid]
             rep_algoW.activate(direction=-projectionWinToLost)
