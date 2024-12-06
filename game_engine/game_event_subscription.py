@@ -55,7 +55,8 @@ class OnTeamWinning_Payload():
     pass
 
 class OnUnitDeath_Payload():
-    pass
+    def __init__(self,position2D) -> None:
+        self.position2D = position2D
     
 class OnCollisionDamage_Payload():
     def __init__(self,projection,damage) -> None:

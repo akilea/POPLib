@@ -6,11 +6,14 @@ from ursina import *
 class PopEngine(Entity):
     def __init__(self,_team_register_init_callable = None) -> None:
         super().__init__(True,True)
+        self._team_register_init_callable = _team_register_init_callable
+        self.local_init()
+        
+    def local_init(self):
         self._cs = CombatSimulator(self.kill_bcu)
         self._sb = ScoreBoard()
         self._state = -999
         self._wait_update_for_state_change = -1 #Nothing
-        self._team_register_init_callable = _team_register_init_callable
         
     def go_to_load(self):
         if self._team_register_init_callable:
@@ -31,10 +34,14 @@ class PopEngine(Entity):
     def go_to_end_game(self):
         self._cs.match_stop()
         self._sb.display_end()
-
-    def reinit_all(self):
-        self._cs
         
+    def go_to_cleanup(self):
+        self._cs.reset()
+        self.local_init()
+        #TODO: my cleanup
+        self._state == 0
+        self._wait_update_for_state_change = 0
+
     def register_team(self,team:Team):
         self._cs.register_team(team)
         
@@ -45,7 +52,7 @@ class PopEngine(Entity):
                 self._state = 2
             elif self._state == 3:
                 self._wait_update_for_state_change = 1
-                self._state = 0
+                self._state = 4
 
     def update(self):
         if self._wait_update_for_state_change >= 0:
@@ -59,6 +66,8 @@ class PopEngine(Entity):
                     self.go_to_simulation()
                 if self._state == 3:
                     self.go_to_end_game()
+                if self._state == 4:
+                    self.go_to_cleanup()
 
     def kill_bcu(self,cuw):
         if self._sb.sub_team_score(cuw.team_info,cuw.unit_type.cost):

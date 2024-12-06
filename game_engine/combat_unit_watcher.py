@@ -59,7 +59,7 @@ class CombatUnitWatcher(Entity):
         
     def die(self):
         self._ghost.visible_setter(True)
-        self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload())
+        self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload(Vec2(0,0)))
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:
