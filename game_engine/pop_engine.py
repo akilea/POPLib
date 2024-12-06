@@ -22,14 +22,14 @@ class PopEngine(Entity):
         self._wait_update_for_state_change = 1
 
     def go_to_preparation_freeze(self):
-        self._cs.stop()
+        self._cs.match_stop()
         self._sb.display_intro()
 
     def go_to_simulation(self):
-        self._sb.launch_countdown(self._cs.start)
+        self._sb.launch_countdown(self._cs.match_start)
 
     def go_to_end_game(self):
-        self._cs.stop()
+        self._cs.match_stop()
         self._sb.display_end()
 
     def reinit_all(self):

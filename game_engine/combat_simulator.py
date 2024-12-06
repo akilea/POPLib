@@ -93,20 +93,20 @@ class CombatSimulator(Entity):
             rep_algoW = self._boid_to_repulse_algo_map[winner_boid]
             rep_algoW.activate(direction=-projectionWinToLost)
     
-    def start(self):
+    def match_start(self):
         payload = OnMatchStart_Payload()
         for team in self._team_dict.values():
             team.ge_subscription.on_match_start_callable(payload)
 
-    def stop(self):
+    def match_stop(self):
         payload = OnMatchStop_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_cleanup_team_callable(payload)
+            team.ge_subscription.on_match_stop_callable(payload)
 
     def reset(self):
         payload = OnCleanup_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_match_reset_callable(payload)
+            team.ge_subscription.on_cleanup_team_callable(payload)
 
     def kill_unit(self,cuw,boid):
         team_info = cuw.team_info
