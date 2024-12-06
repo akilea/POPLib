@@ -4,14 +4,17 @@ from popgame.game_engine.team import Team
 from ursina import *
 
 class PopEngine(Entity):
-    def __init__(self) -> None:
+    def __init__(self,_team_register_init_callable = None) -> None:
         super().__init__(True,True)
         self._cs = CombatSimulator(self.kill_bcu)
         self._sb = ScoreBoard()
         self._state = -999
         self._wait_update_for_state_change = -1 #Nothing
+        self._team_register_init_callable = _team_register_init_callable
         
     def go_to_load(self):
+        if self._team_register_init_callable:
+            self._team_register_init_callable()
         self._cs.build_teams()
         for info,team in self._cs._team_dict.items():
             self._sb.add_health_bar(info,team.compute_total_point())
@@ -28,6 +31,9 @@ class PopEngine(Entity):
     def go_to_end_game(self):
         self._cs.stop()
         self._sb.display_end()
+
+    def reinit_all(self):
+        self._cs
         
     def register_team(self,team:Team):
         self._cs.register_team(team)
@@ -37,6 +43,9 @@ class PopEngine(Entity):
             if self._state == 1:
                 self._wait_update_for_state_change = 0
                 self._state = 2
+            elif self._state == 3:
+                self._wait_update_for_state_change = 1
+                self._state = 0
 
     def update(self):
         if self._wait_update_for_state_change >= 0:

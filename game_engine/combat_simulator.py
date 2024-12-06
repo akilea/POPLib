@@ -94,19 +94,19 @@ class CombatSimulator(Entity):
             rep_algoW.activate(direction=-projectionWinToLost)
     
     def start(self):
-        payload = OnGameStart_Payload()
+        payload = OnMatchStart_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_game_start(payload)
+            team.ge_subscription.on_match_start_callable(payload)
 
     def stop(self):
-        payload = OnGameStop_Payload()
+        payload = OnMatchStop_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_game_stop(payload)
+            team.ge_subscription.on_cleanup_team_callable(payload)
 
     def reset(self):
-        payload = OnGameReset_Payload()
+        payload = OnCleanup_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_game_reset(payload)
+            team.ge_subscription.on_match_reset_callable(payload)
 
     def kill_unit(self,cuw,boid):
         team_info = cuw.team_info
@@ -125,13 +125,13 @@ class CombatSimulator(Entity):
         payload = OnTeamEliminated_Payload()
         t = self._team_dict.get(team_info,None)
         if t:
-            t.ge_subscription.on_team_elimiated(payload)
+            t.ge_subscription.on_team_elimiated_callable(payload)
 
     def win_team(self,team_info):
         payload = OnTeamWinning_Payload()
         t = self._team_dict.get(team_info,None)
         if t:
-            t.ge_subscription.on_team_winning(payload)
+            t.ge_subscription.on_team_winning_callable(payload)
 
     def register_team(self,new_team:Team):
         if new_team is None:
