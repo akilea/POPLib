@@ -30,7 +30,7 @@ class CombatSimulator(Entity):
             pos = team_info.rel_start_pos
             col = team_info.color
             contr = team_info.control_dict
-            team.on_build_team()
+            team._ge_subscription.on_build_team_callable(OnBuildTeam_Payload())
             #Register all mapped boids to their combat unit
             for cu,unit_info in team._dict_cu_to_unity_type.items() :
                 cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info)
