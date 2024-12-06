@@ -33,7 +33,7 @@ class CombatSimulator(Entity):
             team._ge_subscription.on_build_team_callable(OnBuildTeam_Payload())
             #Register all mapped boids to their combat unit
             for cu,unit_info in team._dict_cu_to_unity_type.items() :
-                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info)
+                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info,cu_subscription=team._dict_cu_to_sub[cu])
                 cuw.parent=cu
                 self._boid_to_combat_unit_watcher_map[cu.get_boid()] = cuw
                 
