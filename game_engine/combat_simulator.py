@@ -46,6 +46,7 @@ class CombatSimulator(Entity):
 
     def update(self):
         self.produce_pairs()
+        self.velocity_check()
         
     def produce_pairs(self):
         sh = SpatialHash.instance()
@@ -57,6 +58,14 @@ class CombatSimulator(Entity):
                 for pair in cell_pairs_en_alive:
                     if UNIT_DAMAGE_RADIUS_SQUARED > pair[0].get_squared_distance_from(pair[1].get_position()):
                         self.resolve_damage(pair[0],pair[1])
+
+    def velocity_check(self):
+        for bcu_w in self._boid_to_combat_unit_watcher_map.values():
+            if bcu_w.velocity_check():
+                self._internal_on_velocity_fail(bcu_w)
+                if bcu_w.receive_env_damage_and_test_death(VELOCITY_CHECK_DAMAGE):
+                    #TODO: properly have th boid unit
+                    self.kill_unit(bcu_w,None)
 
     def resolve_damage(self,bA,bB):
         repA = self._boid_to_repulse_algo_map[bA]
