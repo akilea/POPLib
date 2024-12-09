@@ -8,6 +8,7 @@ class Team:
         if team_info.flag % 2 != 0:
             raise Exception("Team is a flag, not a mask: only a single bit needs to be used.")
         self._dict_cu_to_unity_type = dict()
+        self._dict_cu_to_sub = dict()
         self._ge_subscription = ge_subscription
         
     @property
@@ -27,7 +28,7 @@ class Team:
     def reset(self):
         self._dict_cu_to_unity_type.clear()
     
-    def register_boid(self,bcu,unit_type:EUnitInfo):
+    def register_boid(self,bcu,unit_type:EUnitInfo,unit_subscription=CombatUnitSubscription()):
         if bcu in self._dict_cu_to_unity_type.keys():
             raise Exception("Boid Combat Unit already registered!")
         pt = self.compute_total_point()
@@ -35,6 +36,7 @@ class Team:
             raise Exception(f"Max amounts of points {MAX_ALLOWED_POINTS} surpassed (is {pt})!")
         
         self._dict_cu_to_unity_type[bcu] = unit_type
+        self._dict_cu_to_sub[bcu] = unit_subscription
         
     def compute_total_point(self):
         pt = 0

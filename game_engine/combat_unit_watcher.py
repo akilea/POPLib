@@ -12,7 +12,7 @@ class CombatUnitWatcher(Entity):
         self._old_position = Vec3()
         self._velocity = Vec3()
         
-        self._ghost = Text("Ghost",parent=self,scale=30.0,ignore_paused=True,position=Vec3(0,3,0),color=color.yellow,billboard=True,shader=shaders.unlit_shader,origin=(0.0,0.5))
+        self._ghost = Text("Ghost",parent=self,scale=30.0,position=Vec3(0,3,0),color=color.yellow,billboard=True,shader=shaders.unlit_shader,origin=(0.0,0.5))
         self._ghost.visible_setter(False)
         self._ghost.create_background(self._ghost.size*0.5,self._ghost.size*0.8,color.red)
         
@@ -59,7 +59,7 @@ class CombatUnitWatcher(Entity):
         
     def die(self):
         self._ghost.visible_setter(True)
-        self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload())
+        self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload(Vec2(0,0)))
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:

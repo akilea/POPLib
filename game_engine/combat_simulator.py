@@ -30,10 +30,10 @@ class CombatSimulator(Entity):
             pos = team_info.rel_start_pos
             col = team_info.color
             contr = team_info.control_dict
-            team.on_build_team()
+            team._ge_subscription.on_build_team_callable(OnBuildTeam_Payload())
             #Register all mapped boids to their combat unit
             for cu,unit_info in team._dict_cu_to_unity_type.items() :
-                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info)
+                cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info,cu_subscription=team._dict_cu_to_sub[cu])
                 cuw.parent=cu
                 self._boid_to_combat_unit_watcher_map[cu.get_boid()] = cuw
                 
@@ -93,24 +93,24 @@ class CombatSimulator(Entity):
             rep_algoW = self._boid_to_repulse_algo_map[winner_boid]
             rep_algoW.activate(direction=-projectionWinToLost)
     
-    def start(self):
+    def match_start(self):
         payload = OnMatchStart_Payload()
         for team in self._team_dict.values():
             team.ge_subscription.on_match_start_callable(payload)
 
-    def stop(self):
+    def match_stop(self):
         payload = OnMatchStop_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_cleanup_team_callable(payload)
+            team.ge_subscription.on_match_stop_callable(payload)
 
     def reset(self):
         payload = OnCleanup_Payload()
         for team in self._team_dict.values():
-            team.ge_subscription.on_match_reset_callable(payload)
+            team.ge_subscription.on_cleanup_team_callable(payload)
 
     def kill_unit(self,cuw,boid):
         team_info = cuw.team_info
-        payload = OnUnitDeath_Payload()
+        payload = OnUnitDeath_Payload(position2D=boid.get_position())
         cuw.cu_subscription.on_unit_death_callable(payload)
         t = self._team_dict.get(team_info,None)
         if t:
