@@ -3,8 +3,10 @@ from ursina.prefabs.health_bar import HealthBar
 from popgame.game_engine.team_util import *
 from popgame.constant import COUNT_DOWN_WAIT_TIME
 
-class ScoreBoard():
+class ScoreBoard(Entity):
     def __init__(self):
+        super().__init__()
+        self.parent = camera.ui
         intro_txt = dedent('''
             <red>Welcome to<default>\n
             Peck Order Pandemonium!''').strip()
@@ -16,19 +18,19 @@ class ScoreBoard():
             <red>Winner is<default>\n
             PATATE''').strip()
 
-        self._intro_text =  Text(text=intro_txt,color=color.azure,scale=5.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True)
+        self._intro_text =  Text(text=intro_txt,color=color.azure,scale=5.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True,parent=self)
         self._intro_text.visible_setter(False)
         self._intro_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
 
-        self._start_count_down_text =  Text(text="3",color=color.azure,scale=10.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True)
+        self._start_count_down_text =  Text(text="3",color=color.azure,scale=10.0, wordwrap=30,origin=(.1,-0.5),ignore_paused=True,parent=self)
         self._start_count_down_text.visible_setter(False)
         self._start_count_down_text.create_background(self._intro_text.size*1.5,self._intro_text.size*0.7,color.black33)
 
-        self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,3.0),ignore_paused=True)
+        self._next_text =  Text(text=continue_txt,color=color.azure,scale=2.0, wordwrap=30,origin=(.1,3.0),ignore_paused=True,parent=self)
         self._next_text.visible_setter(False)
         self._next_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
 
-        self._end_text =  Text(text=end_txt,color=color.azure,scale=5.0, wordwrap=30,origin=(.1,0),ignore_paused=True)
+        self._end_text =  Text(text=end_txt,color=color.azure,scale=5.0, wordwrap=30,origin=(.1,0),ignore_paused=True,parent=self)
         self._end_text.visible_setter(False)
         self._end_text.create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black50)
         
@@ -44,7 +46,7 @@ class ScoreBoard():
         hp_origin = self._hp_delta * (len(self._score_dict) +1)
         scale=Vec2(.3,0.03)
         txt_scale = 0.9* Vec2(1.0/scale.x,1.0/scale.y)
-        self._score_dict[team_info] = HealthBar(bar_color=col.tint(-.25), roundness=.1, max_value=MAX_ALLOWED_POINTS, value=total_point, scale=scale,show_lines=False,position=window.top_left+hp_origin,ignore_paused=True)
+        self._score_dict[team_info] = HealthBar(bar_color=col.tint(-.25), roundness=.1, max_value=MAX_ALLOWED_POINTS, value=total_point, scale=scale,show_lines=False,position=window.top_left+hp_origin,ignore_paused=True,parent=self)
         self._score_txt_dict[team_info] = Text(text=name,color=col,scale=txt_scale, wordwrap=30,parent=self._score_dict[team_info],position=Vec3(0,0.6,0),ignore_paused=True)
         self._score_txt_dict[team_info].create_background(self._intro_text.size*0.5,self._intro_text.size*0.8,color.black90)
 

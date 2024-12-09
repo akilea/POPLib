@@ -37,10 +37,10 @@ class PopEngine(Entity):
         
     def go_to_cleanup(self):
         self._cs.reset()
+        destroy(self._sb)
+        destroy(self._cs)
         self.local_init()
-        #TODO: my cleanup
-        self._state == 0
-        self._wait_update_for_state_change = 0
+        self.go_to_load()
 
     def register_team(self,team:Team):
         self._cs.register_team(team)
