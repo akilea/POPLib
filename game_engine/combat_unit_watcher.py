@@ -18,7 +18,7 @@ class CombatUnitWatcher(Entity):
         self._team_info = team_info
         self._unit_type = unit_type
         self._hp = self._unit_type.max_hp
-        self._one_over_delta = 1.0 / 60.0
+        self._one_over_delta = 60.0
         self.cu_subscription = cu_subscription
         self._frame_count = random.randrange(1,VELOCITY_CHECK_MODULE_RANGE-1)
 
@@ -46,13 +46,11 @@ class CombatUnitWatcher(Entity):
         self._frame_count += 1
 
     def velocity_check(self)->bool:
-        return False
         ret = False
         if self._frame_count % VELOCITY_CHECK_MODULE_RANGE == 0:
             v = self.get_velocity()
-            print(length_squared_2D(v))
             if length_squared_2D(v) > self.unit_type.max_velocity_squared:
-                self.cu_subscription._callable_on_velocity_check_fail(OnVelocityCheckFailed_Payload(sqrt(v),self.unit_type.max_velocity))
+                self.cu_subscription.on_velocity_check_failed_callable(OnVelocityCheckFailed_Payload(v,self.unit_type.max_velocity))
                 ret = True
         return ret
 

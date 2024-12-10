@@ -18,6 +18,7 @@ class CombatSimulator(Entity):
         self._total_team_mask = 0x000000
         #Little hacky but good enough
         self._boid_to_combat_unit_watcher_map = dict()
+        self._combat_unit_watcher_boid_to_map = dict()
         self._boid_to_repulse_algo_map = dict()
         self._internal_on_bcu_death_callable = callable_on_bcu_death
         
@@ -36,6 +37,7 @@ class CombatSimulator(Entity):
                 cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info,cu_subscription=team._dict_cu_to_sub[cu])
                 cuw.parent=cu
                 self._boid_to_combat_unit_watcher_map[cu.get_boid()] = cuw
+                self._combat_unit_watcher_boid_to_map[cuw] = cu.get_boid()
                 
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
@@ -62,10 +64,9 @@ class CombatSimulator(Entity):
     def velocity_check(self):
         for bcu_w in self._boid_to_combat_unit_watcher_map.values():
             if bcu_w.velocity_check():
-                self._internal_on_velocity_fail(bcu_w)
                 if bcu_w.receive_env_damage_and_test_death(VELOCITY_CHECK_DAMAGE):
                     #TODO: properly have th boid unit
-                    self.kill_unit(bcu_w,None)
+                    self.kill_unit(bcu_w,self._combat_unit_watcher_boid_to_map[bcu_w])
 
     def resolve_damage(self,bA,bB):
         repA = self._boid_to_repulse_algo_map[bA]
