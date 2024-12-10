@@ -5,6 +5,17 @@ from popgame.game_engine.team_util import *
 from popgame.math import length_squared_2D
 from popgame.game_engine.game_event_subscription import *
 
+
+class Ticker():
+    def __init__(self,mod,delta) -> None:
+        self._frame_count = random.randrange(1,delta-1)
+        self._mod = mod
+        
+    def tick(self):
+        self._frame_count += 1
+        return self._frame_count % self._mod == 0
+    
+
 class CombatUnitWatcher(Entity):
     def __init__(self,team_info:ETeamInfo,unit_type:EUnitInfo,cu_subscription:CombatUnitSubscription=CombatUnitSubscription()) -> None:
         super().__init__()
@@ -20,7 +31,9 @@ class CombatUnitWatcher(Entity):
         self._hp = self._unit_type.max_hp
         self._one_over_delta = 60.0
         self.cu_subscription = cu_subscription
-        self._frame_count = random.randrange(1,VELOCITY_CHECK_MODULE_RANGE-1)
+        
+        self._ticker = Ticker(VELOCITY_CHECK_MODULE_RANGE,VELOCITY_CHECK_MODULE_RANGE)
+
 
     @property
     def unit_type(self):
@@ -43,11 +56,10 @@ class CombatUnitWatcher(Entity):
     def update(self):
         self._velocity = (self._old_position - self.world_position) * self._one_over_delta
         self._old_position = copy(self.world_position)
-        self._frame_count += 1
 
     def velocity_check(self)->bool:
         ret = False
-        if self._frame_count % VELOCITY_CHECK_MODULE_RANGE == 0:
+        if self._ticker.tick():
             v = self.get_velocity()
             if length_squared_2D(v) > self.unit_type.max_velocity_squared:
                 self.cu_subscription.on_velocity_check_failed_callable(OnVelocityCheckFailed_Payload(v,self.unit_type.max_velocity))
@@ -69,6 +81,12 @@ class CombatUnitWatcher(Entity):
     def die(self):
         self._ghost.visible_setter(True)
         self.cu_subscription.on_unit_death_callable(OnUnitDeath_Payload(Vec2(0,0)))
+        
+    def is_dead(self):
+        return self._ghost.visible_getter()
+
+    def is_alive(self):
+        return not self._ghost.visible_getter()
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:

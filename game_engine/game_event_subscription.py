@@ -74,6 +74,5 @@ class OnVelocityCheckFailed_Payload():
         self.max_velocity = max_velocity
                
 class OnReceiveZoneDamage_Payload():
-    def __init__(self,dot,current_damage) -> None:
+    def __init__(self,current_damage) -> None:
         self.current_damage = current_damage
-        self.damage_over_time = dot

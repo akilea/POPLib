@@ -20,11 +20,11 @@ def run_basic_scene():
 
 def run_border_scene():
     app = run_basic_scene()
-    c = create_corners(SOFT_BORDER_BOUNDARY_MIN,SOFT_BORDER_BOUNDARY_MAX,0.05)
-    create_line(c[0],c[1],color.orange)
-    create_line(c[1],c[2],color.orange)
-    create_line(c[2],c[3],color.orange)
-    create_line(c[3],c[0],color.orange)
+    # c = create_corners(SOFT_BORDER_BOUNDARY_MIN,SOFT_BORDER_BOUNDARY_MAX,0.05)
+    # create_line(c[0],c[1],color.orange)
+    # create_line(c[1],c[2],color.orange)
+    # create_line(c[2],c[3],color.orange)
+    # create_line(c[3],c[0],color.orange)
     return app
 
 def run_border_scene_with_team_zones():

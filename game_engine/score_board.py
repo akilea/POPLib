@@ -65,7 +65,7 @@ class ScoreBoard(Entity):
     
     def try_get_winner_team_info(self):
         if len(self._team_left_set) == 0:
-            raise Exception("No winner? Should not happen...")
+            raise Exception("All teams died?")
         if len(self._team_left_set) == 1:
             return next(iter(self._team_left_set))
         return None

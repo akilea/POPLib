@@ -7,8 +7,9 @@ from popgame.game_engine.team_util import *
 from popgame.boid_system.spatial_hash import SpatialHash
 from popgame.constant import UNIT_DAMAGE_RADIUS_SQUARED
 from popgame.boid_system.boid_algorithm_repulse import BoidAlgorithmRepulse
-from popgame.math import *
 from popgame.game_engine.game_event_subscription import *
+from popgame.game_engine.zone import SoftBorderDamageZone,HardBorderDamageZone
+from popgame.math import *
 from itertools import combinations
 
 class CombatSimulator(Entity):
@@ -18,9 +19,12 @@ class CombatSimulator(Entity):
         self._total_team_mask = 0x000000
         #Little hacky but good enough
         self._boid_to_combat_unit_watcher_map = dict()
-        self._combat_unit_watcher_boid_to_map = dict()
         self._boid_to_repulse_algo_map = dict()
         self._internal_on_bcu_death_callable = callable_on_bcu_death
+        
+        self._zones = list()
+        self._zones.append(SoftBorderDamageZone())
+        self._zones.append(HardBorderDamageZone())
         
     @property
     def total_team_mask(self):
@@ -28,16 +32,12 @@ class CombatSimulator(Entity):
         
     def build_teams(self):
         for team_info,team in self._team_dict.items():
-            pos = team_info.rel_start_pos
-            col = team_info.color
-            contr = team_info.control_dict
             team._ge_subscription.on_build_team_callable(OnBuildTeam_Payload())
             #Register all mapped boids to their combat unit
             for cu,unit_info in team._dict_cu_to_unity_type.items() :
                 cuw = CombatUnitWatcher(team_info=team_info,unit_type=unit_info,cu_subscription=team._dict_cu_to_sub[cu])
                 cuw.parent=cu
                 self._boid_to_combat_unit_watcher_map[cu.get_boid()] = cuw
-                self._combat_unit_watcher_boid_to_map[cuw] = cu.get_boid()
                 
                 balgo_rep = BoidAlgorithmRepulse()
                 self._boid_to_repulse_algo_map[cu.get_boid()] = balgo_rep
@@ -47,8 +47,10 @@ class CombatSimulator(Entity):
                 cu.scale *= unit_info.model_scale
 
     def update(self):
-        self.produce_pairs()
-        self.velocity_check()
+        if not self.ignore:
+            self.produce_pairs()
+            self.velocity_check()
+            self.zone_check()
         
     def produce_pairs(self):
         sh = SpatialHash.instance()
@@ -62,12 +64,20 @@ class CombatSimulator(Entity):
                         self.resolve_damage(pair[0],pair[1])
 
     def velocity_check(self):
-        for bcu_w in self._boid_to_combat_unit_watcher_map.values():
-            if bcu_w.velocity_check():
+        for boid,bcu_w in self._boid_to_combat_unit_watcher_map.items():
+            if bcu_w.is_alive() and bcu_w.velocity_check():
                 if bcu_w.receive_env_damage_and_test_death(VELOCITY_CHECK_DAMAGE):
-                    #TODO: properly have th boid unit
-                    self.kill_unit(bcu_w,self._combat_unit_watcher_boid_to_map[bcu_w])
+                    self.kill_unit(bcu_w,boid)
 
+    def zone_check(self):
+        for zone in self._zones:
+            if zone.tick():
+                for boid,bcu_w in self._boid_to_combat_unit_watcher_map.items():
+                    if bcu_w.is_alive() and zone.is_exterior(boid.get_position()):
+                        bcu_w.cu_subscription.on_receive_zone_damage_callable(OnReceiveZoneDamage_Payload(zone.get_damage()))
+                        if bcu_w.receive_env_damage_and_test_death(zone.get_damage()):
+                            self.kill_unit(bcu_w,boid)
+        
     def resolve_damage(self,bA,bB):
         repA = self._boid_to_repulse_algo_map[bA]
         repB = self._boid_to_repulse_algo_map[bB]
@@ -107,11 +117,13 @@ class CombatSimulator(Entity):
         payload = OnMatchStart_Payload()
         for team in self._team_dict.values():
             team.ge_subscription.on_match_start_callable(payload)
+        self.ignore = False
 
     def match_stop(self):
         payload = OnMatchStop_Payload()
         for team in self._team_dict.values():
             team.ge_subscription.on_match_stop_callable(payload)
+        self.ignore = True
 
     def reset(self):
         payload = OnCleanup_Payload()
