@@ -29,7 +29,6 @@ class CombatUnitWatcher(Entity):
         self._team_info = team_info
         self._unit_type = unit_type
         self._hp = self._unit_type.max_hp
-        self._one_over_delta = 60.0
         self.cu_subscription = cu_subscription
         
         self._ticker = Ticker(VELOCITY_CHECK_MODULE_RANGE,VELOCITY_CHECK_MODULE_RANGE)
@@ -54,7 +53,7 @@ class CombatUnitWatcher(Entity):
         return self.unit_type.damage_multiplier
     
     def update(self):
-        self._velocity = (self._old_position - self.world_position) * self._one_over_delta
+        self._velocity = (self._old_position - self.world_position) / time.dt
         self._old_position = copy(self.world_position)
 
     def velocity_check(self)->bool:
