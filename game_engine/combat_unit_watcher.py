@@ -2,7 +2,7 @@ from ursina import *
 from ursina import shaders
 from enum import Enum
 from popgame.game_engine.team_util import *
-from popgame.math import length_squared_2D
+from popgame.math import length_squared_2D,length_2D
 from popgame.game_engine.game_event_subscription import *
 
 
@@ -43,7 +43,9 @@ class CombatUnitWatcher(Entity):
         return self._team_info
     
     def get_velocity(self):
-        return CombatUnitWatcher.game_space_to_boid_space(self._velocity)
+        v = CombatUnitWatcher.game_space_to_boid_space(self._velocity)
+        #print(f" v{v} {length_2D(v)}")
+        return v
     
     # def get_position(self):
     #     return CombatUnitWatcher.game_space_to_boid_space(self._velocity)
@@ -53,14 +55,14 @@ class CombatUnitWatcher(Entity):
         return self.unit_type.damage_multiplier
     
     def update(self):
-        self._velocity = (self._old_position - self.world_position) / time.dt
+        self._velocity = (self._old_position - self.world_position) * 1.0 / time.dt
         self._old_position = copy(self.world_position)
 
     def velocity_check(self)->bool:
         ret = False
         if self._ticker.tick():
             v = self.get_velocity()
-            if length_squared_2D(v) > self.unit_type.max_velocity_squared:
+            if length_squared_2D(v) > self.unit_type.max_velocity_squared_buffered:
                 self.cu_subscription.on_velocity_check_failed_callable(OnVelocityCheckFailed_Payload(v,self.unit_type.max_velocity))
                 ret = True
         return ret
@@ -89,4 +91,4 @@ class CombatUnitWatcher(Entity):
    
     @staticmethod
     def game_space_to_boid_space(position_3D: Vec3) -> Vec2:
-        return Vec3(position_3D.z,position_3D.x)
+        return Vec2(position_3D.z,position_3D.x)

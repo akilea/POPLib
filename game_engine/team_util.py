@@ -11,8 +11,10 @@ class EUnitInfo(Enum):
     def __init__(self, cost:int,max_hp:int,max_velocity:float,damage_multiplier:float,model_scale:float):
         self.cost = cost
         self.max_hp = max_hp
+        self._velocity_uncertainty_buffer = 1.05
         self.max_velocity = max_velocity
-        self.max_velocity_squared = max_velocity * max_velocity
+        self._max_velocity_buffered = self._velocity_uncertainty_buffer * self.max_velocity
+        self.max_velocity_squared_buffered = self._max_velocity_buffered * self._max_velocity_buffered
         self.damage_multiplier = damage_multiplier
         self.model_scale = model_scale
         
