@@ -139,11 +139,14 @@ class CombatSimulator(Entity):
             t.ge_subscription.on_unit_death_callable(payload)
 
         #Break encapsulation a bit, but better that way
+        ba_repulse = self._boid_to_repulse_algo_map.pop(boid, None)
+        if ba_repulse is not None:
+            ba_repulse.destroy_limb()
         cuw.die()
         boid.set_group_mask(ETeamInfo.Ghost.flag)
         self._internal_on_bcu_death_callable(cuw)
-
-    def elimiate_team(self,team_info):
+        
+    def eliminate_team(self,team_info):
         payload = OnTeamEliminated_Payload()
         t = self._team_dict.get(team_info,None)
         if t:

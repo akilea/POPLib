@@ -42,7 +42,9 @@ class SpatialHash(Entity):
         self._registered_boid_set.add(restricted_boid)
 
     def unregister_boid(self,restricted_boid):
-        raise NotImplemented()
+        cell = self.hash(restricted_boid._position)
+        self._cells[cell].remove(restricted_boid)
+        self._registered_boid_set.remove(restricted_boid)
 
     def update_boid_cell(self,restricted_boid):
         """Move a boid from one cell to another if its position changed."""

@@ -71,7 +71,7 @@ class PopEngine(Entity):
 
     def kill_bcu(self,cuw):
         if self._sb.sub_team_score(cuw.team_info,cuw.unit_type.cost):
-            self._cs.elimiate_team(cuw.team_info)
+            self._cs.eliminate_team(cuw.team_info)
             winner_info = self._sb.try_get_winner_team_info()
             if winner_info:
                 self._cs.win_team(winner_info)

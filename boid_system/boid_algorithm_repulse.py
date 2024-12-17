@@ -1,4 +1,5 @@
 from boid_algorithm import BoidAlgorithm
+from limb_debug import LimbDebug,LimbDebugNullObject
 from popgame.constant import UNIT_REPULSE_TIME,UNIT_REPULSE_VELOCITY
 from ursina import *   
 
@@ -24,3 +25,8 @@ class BoidAlgorithmRepulse(BoidAlgorithm):
             self._update_limb(self._velocity_to_keep)
             return self._velocity_to_keep
         return None
+    
+    def destroy_limb(self):
+        if not isinstance( self._debug_limb,LimbDebugNullObject):
+            self._debug_limb._eternal = False
+            destroy(self._debug_limb)
