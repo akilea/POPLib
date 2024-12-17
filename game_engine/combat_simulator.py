@@ -133,7 +133,6 @@ class CombatSimulator(Entity):
     def kill_unit(self,cuw,boid):
         team_info = cuw.team_info
         payload = OnUnitDeath_Payload(position2D=boid.get_position())
-        cuw.cu_subscription.on_unit_death_callable(payload)
         t = self._team_dict.get(team_info,None)
         if t:
             t.ge_subscription.on_unit_death_callable(payload)
